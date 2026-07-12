@@ -1,464 +1,1683 @@
 <!DOCTYPE html>
-<html lang="id" class="scroll-smooth">
+<html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cerita Kita Publisher</title>
-    
-    <!-- Tailwind CSS (Framework CSS) -->
+    <title>Cerita Kita Publisher - Penerbitan Buku Premium Klasik Jawa Modern</title>
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = { darkMode: 'class' }
-    </script>
-    
-    <!-- Lucide Icons (Untuk Ikon) -->
+    <!-- Google Fonts: Playfair Display (Klasik Jawa) & Plus Jakarta Sans (Modern) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        /* CSS Variables to handle Dynamic Dual Themes */
+        :root {
+            /* Light Theme - Classic Yellow/Gold */
+            --bg-main: #FAF6F0;
+            --text-main: #2C221E;
+            --text-muted: #5C4D46;
+            --primary: #D4AF37;       /* Emas Klasik */
+            --primary-light: #F3E5AB; /* Emas Muda */
+            --primary-dark: #1A120B;  /* Cokelat Tua */
+            --bronze: #3C2A21;
+            --card-bg: #FFFFFF;
+            --border-color: rgba(212, 175, 55, 0.2);
+            --input-bg: rgba(250, 246, 240, 0.6);
+            --accent: #8C321B;        /* Merah Bata */
+            --shadow-opacity: 0.15;
+            --batik-opacity: 0.03;
+        }
+
+        .theme-dark-blue {
+            /* Dark Theme - Royal Dark Blue */
+            --bg-main: #0B0F19;       /* Deep Midnight Blue */
+            --text-main: #F1F5F9;     /* Light Gray/White */
+            --text-muted: #94A3B8;    /* Muted Blue-Gray */
+            --primary: #3B82F6;       /* Royal Blue */
+            --primary-light: #93C5FD; /* Light Blue */
+            --primary-dark: #1E3A8A;  /* Dark Blue */
+            --bronze: #1E293B;        /* Dark Slate */
+            --card-bg: #111827;       /* Deep Gray-Blue */
+            --border-color: rgba(59, 130, 246, 0.3);
+            --input-bg: rgba(17, 24, 39, 0.8);
+            --accent: #F43F5E;        /* Crimson Pink/Red */
+            --shadow-opacity: 0.4;
+            --batik-opacity: 0.015;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+        .font-serif-jawa {
+            font-family: 'Playfair Display', serif;
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--bg-main);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary);
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--primary-dark);
+        }
+        /* Batik Pattern Overlay */
+        .batik-bg {
+            background-image: radial-gradient(var(--primary) 0.5px, transparent 0.5px), radial-gradient(var(--primary) 0.5px, var(--bg-main) 0.5px);
+            background-size: 20px 20px;
+            background-position: 0 0, 10px 10px;
+            opacity: var(--batik-opacity);
+            transition: opacity 0.3s ease;
+        }
+        .card-shadow {
+            box-shadow: 0 10px 30px -15px rgba(0, 0, 0, var(--shadow-opacity));
+        }
+    </style>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        jawa: {
+                            dark: 'var(--primary-dark)',
+                            gold: 'var(--primary)',
+                            goldLight: 'var(--primary-light)',
+                            bronze: 'var(--bronze)',
+                            cream: 'var(--bg-main)',
+                            accent: 'var(--accent)',
+                            card: 'var(--card-bg)'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
 </head>
-<body class="bg-slate-50 font-sans text-slate-900 transition-colors duration-300 dark:bg-slate-900 dark:text-slate-50 selection:bg-indigo-200 dark:selection:bg-indigo-900">
-    
-    <!-- Navbar -->
-    <nav class="fixed w-full z-50 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 transition-all">
+<body class="relative overflow-x-hidden">
+    <!-- Background Motif Batik -->
+    <div class="absolute inset-0 batik-bg pointer-events-none z-0"></div>
+
+    <!-- NOTIFIKASI TOAST (Sistem Pesan Custom) -->
+    <div id="toast" class="fixed bottom-5 right-5 z-50 transform translate-y-20 opacity-0 transition-all duration-300 bg-jawa-dark text-white px-6 py-4 rounded-xl border border-jawa-gold shadow-2xl flex items-center space-x-3 max-w-md">
+        <span id="toast-icon" class="text-jawa-gold"></span>
+        <p id="toast-message" class="text-sm font-medium"></p>
+    </div>
+
+    <!-- HEADER / NAVIGATION -->
+    <header class="sticky top-0 z-40 bg-jawa-dark/95 backdrop-blur-md border-b border-jawa-gold/30 text-white">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between items-center h-20">
-                <!-- Logo -->
-                <div class="flex items-center cursor-pointer">
-                    <img 
-                        id="logo-img"
-                        src="LOGO WEB.png" 
-                        alt="Logo Cerita Kita Publisher" 
-                        class="h-12 w-auto object-contain hover:scale-105 transition-transform drop-shadow-sm"
-                        onerror="this.onerror=null; this.src='https://placehold.co/200x60/ffffff/4f46e5?text=CeritaKita.';"
-                    />
+            <div class="flex items-center justify-between h-20">
+                <!-- Logo Brand -->
+                <div class="flex items-center space-x-3 cursor-pointer" onclick="navigateTo('home')">
+                    <!-- Gunungan Wayang Icon (Custom SVG) -->
+                    <div class="w-10 h-10 bg-gradient-to-br from-jawa-gold to-jawa-bronze rounded-lg flex items-center justify-center shadow-lg border border-jawa-gold/50">
+                        <svg class="w-6 h-6 text-jawa-dark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 2L3 15h6v7h6v-7h6z" stroke-linejoin="round"/>
+                            <path d="M12 5l5 8H7z" fill="currentColor"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <span class="font-serif-jawa text-xl font-bold tracking-wider text-jawa-gold block leading-none">CERITA KITA</span>
+                        <span class="text-[9px] tracking-[0.2em] text-gray-400 uppercase" data-i18n="tagline">Penerbit Buku Nusantara</span>
+                    </div>
                 </div>
 
                 <!-- Desktop Menu -->
-                <div class="hidden lg:flex space-x-8 items-center">
-                    <a href="#beranda" class="text-slate-600 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 font-medium transition-colors" data-i18n="navHome">Beranda</a>
-                    <a href="#layanan" class="text-slate-600 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 font-medium transition-colors" data-i18n="navServices">Layanan</a>
-                    <a href="#katalog" class="text-slate-600 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 font-medium transition-colors" data-i18n="navCatalog">Katalog</a>
-                    <a href="#testimoni" class="text-slate-600 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 font-medium transition-colors" data-i18n="navTesti">Testimoni</a>
-                    
-                    <!-- Toggles -->
-                    <div class="flex items-center space-x-2 border-l border-slate-200 dark:border-slate-700 pl-6">
-                        <button onclick="toggleLang()" class="p-2 rounded-full text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors flex items-center gap-1 font-semibold text-sm">
-                            <i data-lucide="globe" class="w-5 h-5"></i> <span id="lang-text">ID</span>
-                        </button>
-                        <button onclick="toggleTheme()" class="p-2 rounded-full text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors relative w-9 h-9 flex items-center justify-center">
-                            <i data-lucide="moon" id="icon-moon" class="w-5 h-5 absolute transition-opacity duration-300"></i>
-                            <i data-lucide="sun" id="icon-sun" class="w-5 h-5 absolute opacity-0 transition-opacity duration-300"></i>
-                        </button>
+                <nav class="hidden md:flex space-x-6 text-sm font-medium">
+                    <button onclick="navigateTo('home')" class="nav-link text-jawa-gold hover:text-white transition-colors duration-200" data-i18n="nav-home">Beranda</button>
+                    <button onclick="navigateTo('katalog')" class="nav-link text-gray-300 hover:text-jawa-gold transition-colors duration-200" data-i18n="nav-katalog">Katalog Digital</button>
+                    <button onclick="navigateTo('naskah')" class="nav-link text-gray-300 hover:text-jawa-gold transition-colors duration-200" data-i18n="nav-naskah">Kirim Naskah</button>
+                    <button onclick="navigateTo('blog')" class="nav-link text-gray-300 hover:text-jawa-gold transition-colors duration-200" data-i18n="nav-blog">Artikel & Berita</button>
+                </nav>
+
+                <!-- Controls, Theme Switcher, Language Selection & Admin -->
+                <div class="hidden lg:flex items-center space-x-4">
+                    <!-- Language Selector Dropdown -->
+                    <div class="relative">
+                        <select id="lang-selector" onchange="changeLanguage(this.value)" class="bg-jawa-bronze/60 text-white border border-jawa-gold/30 rounded-lg px-2.5 py-1.5 text-xs font-semibold outline-none focus:ring-1 focus:ring-jawa-gold cursor-pointer">
+                            <option value="id">🇮🇩 ID</option>
+                            <option value="jv">ꦗꦮ JV</option>
+                            <option value="en">🇬🇧 EN</option>
+                        </select>
                     </div>
 
-                    <a href="https://wa.me/6285878976277" target="_blank" rel="noopener noreferrer" class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2.5 rounded-full font-medium transition-all shadow-md shadow-indigo-200 dark:shadow-none hover:-translate-y-0.5" data-i18n="navPub">Terbitkan Naskah</a>
-                </div>
-
-                <!-- Mobile Menu Button & Toggles -->
-                <div class="lg:hidden flex items-center gap-2">
-                    <button onclick="toggleLang()" class="p-2 text-slate-600 dark:text-slate-300 font-bold text-sm" id="mobile-lang-text">ID</button>
-                    <button onclick="toggleTheme()" class="p-2 text-slate-600 dark:text-slate-300 relative w-10 h-10 flex items-center justify-center">
-                        <i data-lucide="moon" id="mobile-icon-moon" class="w-6 h-6 absolute transition-opacity duration-300"></i>
-                        <i data-lucide="sun" id="mobile-icon-sun" class="w-6 h-6 absolute opacity-0 transition-opacity duration-300"></i>
+                    <!-- Theme Switcher Button -->
+                    <button onclick="toggleTheme()" class="w-9 h-9 bg-jawa-bronze/60 hover:bg-jawa-gold hover:text-jawa-dark rounded-lg flex items-center justify-center border border-jawa-gold/30 transition-all duration-300" title="Ubah Tema">
+                        <i data-lucide="sun" class="w-4 h-4" id="theme-icon-indicator"></i>
                     </button>
-                    <button onclick="toggleMenu()" class="p-2 text-slate-600 dark:text-slate-300 relative w-10 h-10 flex items-center justify-center">
-                        <i data-lucide="menu" id="icon-menu" class="w-7 h-7 absolute transition-opacity duration-300"></i>
-                        <i data-lucide="x" id="icon-x" class="w-7 h-7 absolute opacity-0 transition-opacity duration-300"></i>
-                    </button>
-                </div>
-            </div>
-        </div>
 
-        <!-- Mobile Menu -->
-        <div id="mobile-menu" class="hidden lg:hidden bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800 px-4 pt-2 pb-6 space-y-2 shadow-xl absolute w-full transition-all">
-            <a href="#beranda" onclick="closeMenu()" class="block px-3 py-3 rounded-md text-base font-medium text-slate-700 dark:text-slate-200 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-slate-50 dark:hover:bg-slate-800" data-i18n="navHome">Beranda</a>
-            <a href="#layanan" onclick="closeMenu()" class="block px-3 py-3 rounded-md text-base font-medium text-slate-700 dark:text-slate-200 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-slate-50 dark:hover:bg-slate-800" data-i18n="navServices">Layanan</a>
-            <a href="#katalog" onclick="closeMenu()" class="block px-3 py-3 rounded-md text-base font-medium text-slate-700 dark:text-slate-200 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-slate-50 dark:hover:bg-slate-800" data-i18n="navCatalog">Katalog</a>
-            <a href="#testimoni" onclick="closeMenu()" class="block px-3 py-3 rounded-md text-base font-medium text-slate-700 dark:text-slate-200 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-slate-50 dark:hover:bg-slate-800" data-i18n="navTesti">Testimoni</a>
-            <a href="https://wa.me/6285878976277" target="_blank" rel="noopener noreferrer" class="block w-full mt-4 text-center bg-indigo-600 text-white px-4 py-3 rounded-xl font-medium" data-i18n="navPub">Terbitkan Naskah</a>
-        </div>
-    </nav>
-
-    <!-- Hero Section -->
-    <section id="beranda" class="relative pt-32 pb-20 lg:pt-48 lg:pb-32 overflow-hidden">
-        <div class="absolute inset-0 z-0">
-            <div class="absolute inset-0 bg-gradient-to-br from-indigo-50 via-white to-blue-50 dark:from-slate-900 dark:via-slate-800 dark:to-indigo-950 transition-colors duration-500"></div>
-            <div class="absolute top-0 right-0 -mr-20 -mt-20 w-96 h-96 rounded-full bg-indigo-100/50 dark:bg-indigo-900/20 blur-3xl"></div>
-            <div class="absolute bottom-0 left-0 -ml-20 -mb-20 w-80 h-80 rounded-full bg-blue-100/50 dark:bg-blue-900/20 blur-3xl"></div>
-        </div>
-
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-            <div class="text-center max-w-3xl mx-auto">
-                <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300 font-semibold text-sm mb-6 border border-indigo-200 dark:border-indigo-800/50">
-                    <i data-lucide="star" class="w-4 h-4 fill-indigo-700 dark:fill-indigo-300 text-indigo-700 dark:text-indigo-300"></i> <span data-i18n="heroBadge">Penerbit Independen Terpercaya</span>
-                </div>
-                <h1 class="text-5xl md:text-6xl font-extrabold text-slate-900 dark:text-white tracking-tight mb-8 leading-tight">
-                    <span data-i18n="heroTitle1">Wujudkan Mimpimu</span> <br class="hidden md:block"/> <span class="text-indigo-600 dark:text-indigo-400" data-i18n="heroTitle2">Menjadi Penulis Buku.</span>
-                </h1>
-                <p class="text-lg md:text-xl text-slate-600 dark:text-slate-300 mb-10 leading-relaxed" data-i18n="heroDesc">
-                    Dari naskah mentah hingga buku fisik yang indah di genggaman. Kami mendampingi setiap langkah perjalanan menulismu dengan layanan penerbitan profesional, transparan, dan terjangkau.
-                </p>
-                <div class="flex flex-col sm:flex-row justify-center gap-4">
-                    <a href="https://wa.me/6285878976277" target="_blank" rel="noopener noreferrer" class="bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-4 rounded-full font-semibold text-lg transition-all shadow-lg shadow-indigo-200 dark:shadow-none hover:-translate-y-1 flex items-center justify-center gap-2">
-                        <span data-i18n="heroBtn1">Kirim Naskah</span> <i data-lucide="arrow-right" class="w-5 h-5"></i>
+                    <!-- Taplink Link -->
+                    <a href="https://ceritakitapublisher.taplink.site/" target="_blank" class="w-9 h-9 bg-jawa-bronze/60 hover:bg-jawa-gold hover:text-jawa-dark rounded-lg flex items-center justify-center border border-jawa-gold/30 transition-all duration-300" title="Kunjungi Taplink">
+                        <i data-lucide="external-link" class="w-4 h-4"></i>
                     </a>
-                    <a href="#layanan" class="bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 px-8 py-4 rounded-full font-semibold text-lg transition-all flex items-center justify-center gap-2" data-i18n="heroBtn2">
-                        Lihat Paket Harga
+
+                    <button onclick="openAdminLogin()" class="flex items-center space-x-2 bg-jawa-bronze/50 hover:bg-jawa-gold hover:text-jawa-dark px-4 py-2 rounded-lg border border-jawa-gold/30 text-xs transition-all duration-300">
+                        <i data-lucide="lock" class="w-3.5 h-3.5"></i>
+                        <span data-i18n="btn-admin">Admin Panel</span>
+                    </button>
+                    <a href="https://wa.me/6285878976277?text=Halo%20Cerita%20Kita%20Publisher..." target="_blank" class="bg-jawa-gold hover:bg-yellow-500 text-jawa-dark px-4 py-2 rounded-lg font-semibold text-xs transition-all duration-300 flex items-center space-x-1 shadow-lg shadow-jawa-gold/10">
+                        <i data-lucide="message-square" class="w-3.5 h-3.5"></i>
+                        <span data-i18n="btn-contact">Hubungi WA</span>
                     </a>
                 </div>
-            </div>
-        </div>
-    </section>
 
-    <!-- Services Section -->
-    <section id="layanan" class="py-24 bg-white dark:bg-slate-900 transition-colors duration-300">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="text-center mb-16">
-                <h2 class="text-3xl md:text-4xl font-bold text-slate-900 dark:text-white mb-4" data-i18n="srvTitle">Layanan Penerbitan Kami</h2>
-                <p class="text-slate-600 dark:text-slate-400 max-w-2xl mx-auto" data-i18n="srvDesc">Kami menyediakan solusi ujung-ke-ujung (end-to-end) untuk naskah Anda. Pilih layanan yang sesuai dengan kebutuhan Anda.</p>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-                <!-- Service 1 -->
-                <div class="bg-slate-50 dark:bg-slate-800 p-8 rounded-2xl border border-slate-100 dark:border-slate-700 hover:border-indigo-100 dark:hover:border-indigo-500 hover:shadow-xl hover:shadow-indigo-100/50 dark:hover:shadow-indigo-900/20 transition-all group">
-                    <div class="bg-white dark:bg-slate-700 w-16 h-16 rounded-xl shadow-sm flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                        <i data-lucide="pen-tool" class="w-8 h-8 text-indigo-600 dark:text-indigo-400"></i>
-                    </div>
-                    <h3 class="text-xl font-bold text-slate-900 dark:text-white mb-3" data-i18n="srv1T">Editing & Proofreading</h3>
-                    <p class="text-slate-600 dark:text-slate-400 leading-relaxed" data-i18n="srv1D">Naskah Anda akan disunting oleh editor profesional kami agar enak dibaca dan bebas typo.</p>
-                </div>
-                <!-- Service 2 -->
-                <div class="bg-slate-50 dark:bg-slate-800 p-8 rounded-2xl border border-slate-100 dark:border-slate-700 hover:border-indigo-100 dark:hover:border-indigo-500 hover:shadow-xl hover:shadow-indigo-100/50 dark:hover:shadow-indigo-900/20 transition-all group">
-                    <div class="bg-white dark:bg-slate-700 w-16 h-16 rounded-xl shadow-sm flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                        <i data-lucide="layout" class="w-8 h-8 text-indigo-600 dark:text-indigo-400"></i>
-                    </div>
-                    <h3 class="text-xl font-bold text-slate-900 dark:text-white mb-3" data-i18n="srv2T">Desain Sampul & Layout</h3>
-                    <p class="text-slate-600 dark:text-slate-400 leading-relaxed" data-i18n="srv2D">Tampilan buku yang menarik dari luar hingga ke dalam halaman.</p>
-                </div>
-                <!-- Service 3 -->
-                <div class="bg-slate-50 dark:bg-slate-800 p-8 rounded-2xl border border-slate-100 dark:border-slate-700 hover:border-indigo-100 dark:hover:border-indigo-500 hover:shadow-xl hover:shadow-indigo-100/50 dark:hover:shadow-indigo-900/20 transition-all group">
-                    <div class="bg-white dark:bg-slate-700 w-16 h-16 rounded-xl shadow-sm flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                        <i data-lucide="badge-check" class="w-8 h-8 text-indigo-600 dark:text-indigo-400"></i>
-                    </div>
-                    <h3 class="text-xl font-bold text-slate-900 dark:text-white mb-3" data-i18n="srv3T">Pengurusan ISBN</h3>
-                    <p class="text-slate-600 dark:text-slate-400 leading-relaxed" data-i18n="srv3D">Kami mengurus legalitas buku Anda (ISBN) secara resmi dan cepat.</p>
-                </div>
-                <!-- Service 4 -->
-                <div class="bg-slate-50 dark:bg-slate-800 p-8 rounded-2xl border border-slate-100 dark:border-slate-700 hover:border-indigo-100 dark:hover:border-indigo-500 hover:shadow-xl hover:shadow-indigo-100/50 dark:hover:shadow-indigo-900/20 transition-all group">
-                    <div class="bg-white dark:bg-slate-700 w-16 h-16 rounded-xl shadow-sm flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                        <i data-lucide="book-open" class="w-8 h-8 text-indigo-600 dark:text-indigo-400"></i>
-                    </div>
-                    <h3 class="text-xl font-bold text-slate-900 dark:text-white mb-3" data-i18n="srv4T">Cetak Berkualitas</h3>
-                    <p class="text-slate-600 dark:text-slate-400 leading-relaxed" data-i18n="srv4D">Hasil cetak standar penerbitan mayor dengan pilihan kertas dan jilid terbaik.</p>
+                <!-- Mobile Menu & Control Button -->
+                <div class="md:hidden flex items-center space-x-3">
+                    <button onclick="toggleTheme()" class="w-8 h-8 bg-jawa-bronze/60 text-white rounded-lg flex items-center justify-center border border-jawa-gold/20">
+                        <i data-lucide="sun" class="w-4 h-4" id="theme-icon-indicator-mobile"></i>
+                    </button>
+                    <select onchange="changeLanguage(this.value)" class="bg-jawa-bronze/60 text-white border border-jawa-gold/20 rounded-lg px-2 py-1 text-xs outline-none">
+                        <option value="id">ID</option>
+                        <option value="jv">JV</option>
+                        <option value="en">EN</option>
+                    </select>
+                    <button onclick="toggleMobileMenu()" class="text-gray-300 hover:text-white focus:outline-none">
+                        <i data-lucide="menu" class="w-6 h-6" id="menu-icon"></i>
+                    </button>
                 </div>
             </div>
         </div>
-    </section>
 
-    <!-- Catalog Section -->
-    <section id="katalog" class="py-24 bg-slate-900 dark:bg-slate-950 text-white relative overflow-hidden transition-colors duration-300">
-        <div class="absolute top-0 right-0 w-[800px] h-[800px] bg-indigo-600/10 dark:bg-indigo-500/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3"></div>
-        
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-            <div class="flex flex-col md:flex-row justify-between items-end mb-12">
-                <div class="max-w-2xl">
-                    <h2 class="text-3xl md:text-4xl font-bold mb-4" data-i18n="catTitle">Terbitan Terbaru</h2>
-                    <p class="text-slate-400" data-i18n="catDesc">Jelajahi karya-karya luar biasa dari para penulis yang telah mempercayakan naskahnya pada Cerita Kita Publisher.</p>
-                </div>
-                <button class="hidden md:flex items-center gap-2 text-indigo-400 hover:text-indigo-300 font-semibold transition-colors mt-4 md:mt-0">
-                    <span data-i18n="catBtn">Lihat Semua Buku</span> <i data-lucide="chevron-right" class="w-5 h-5"></i>
+        <!-- Mobile Navigation Drawer -->
+        <div id="mobile-menu" class="hidden md:hidden bg-jawa-dark border-t border-jawa-gold/20 px-4 pt-2 pb-4 space-y-2">
+            <button onclick="navigateTo('home')" class="block w-full text-left py-2 text-jawa-gold font-medium" data-i18n="nav-home">Beranda</button>
+            <button onclick="navigateTo('katalog')" class="block w-full text-left py-2 text-gray-300 hover:text-white" data-i18n="nav-katalog">Katalog Digital</button>
+            <button onclick="navigateTo('naskah')" class="block w-full text-left py-2 text-gray-300 hover:text-white" data-i18n="nav-naskah">Kirim Naskah</button>
+            <button onclick="navigateTo('blog')" class="block w-full text-left py-2 text-gray-300 hover:text-white" data-i18n="nav-blog">Artikel & Berita</button>
+            <div class="pt-4 border-t border-jawa-gold/10 flex flex-col space-y-2">
+                <a href="https://ceritakitapublisher.taplink.site/" target="_blank" class="w-full text-center bg-jawa-bronze/30 text-white py-2 rounded-lg border border-jawa-gold/20 text-sm flex items-center justify-center space-x-2">
+                    <i data-lucide="external-link" class="w-4 h-4"></i>
+                    <span>Halaman Taplink</span>
+                </a>
+                <button onclick="openAdminLogin()" class="w-full text-center bg-jawa-bronze/50 text-jawa-gold py-2 rounded-lg border border-jawa-gold/30 text-sm" data-i18n="btn-admin">
+                    Admin Panel
                 </button>
+                <a href="https://wa.me/6285878976277" target="_blank" class="w-full text-center bg-jawa-gold text-jawa-dark py-2 rounded-lg font-bold text-sm" data-i18n="btn-contact">
+                    Hubungi WhatsApp
+                </a>
             </div>
-
-            <!-- Grid Galeri Buku (Dirender via JavaScript) -->
-            <div id="book-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-                <!-- Data buku akan diisi oleh Javascript murni di bawah -->
-            </div>
-            
-            <button class="md:hidden w-full mt-8 flex items-center justify-center gap-2 text-indigo-400 border border-indigo-400/30 py-3 rounded-lg hover:bg-indigo-600/10 font-semibold transition-colors">
-                <span data-i18n="catBtn">Lihat Semua Buku</span> <i data-lucide="chevron-right" class="w-5 h-5"></i>
-            </button>
         </div>
-    </section>
+    </header>
 
-    <!-- CTA Section -->
-    <section class="py-20 relative bg-white dark:bg-slate-900 transition-colors duration-300">
-        <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="bg-gradient-to-r from-indigo-600 to-blue-600 dark:from-indigo-800 dark:to-blue-900 rounded-3xl p-10 md:p-16 text-center text-white shadow-2xl relative overflow-hidden">
-                <div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
-                <div class="relative z-10">
-                    <h2 class="text-3xl md:text-4xl font-bold mb-6" data-i18n="ctaTitle">Punya Naskah yang Siap Diterbitkan?</h2>
-                    <p class="text-indigo-100 text-lg mb-10 max-w-2xl mx-auto" data-i18n="ctaDesc">Jangan biarkan karya Anda hanya tersimpan di laptop. Diskusikan dengan tim kami sekarang dan dapatkan penawaran spesial bulan ini.</p>
-                    <a href="https://wa.me/6285878976277" target="_blank" rel="noopener noreferrer" class="inline-block bg-white text-indigo-700 dark:text-indigo-900 px-8 py-4 rounded-full font-bold text-lg hover:bg-indigo-50 transition-all shadow-lg hover:shadow-xl hover:-translate-y-1" data-i18n="ctaBtn">Konsultasi Gratis via WhatsApp</a>
+    <!-- CONTENT SECTIONS CONTAINER -->
+    <main class="relative z-10">
+
+        <!-- ================= SECTION: HOME ================= -->
+        <section id="section-home" class="transition-opacity duration-300">
+            <!-- Hero Banner -->
+            <div class="relative bg-jawa-dark text-white overflow-hidden py-16 md:py-28 border-b-4 border-jawa-gold">
+                <!-- Background decorative elements -->
+                <div class="absolute inset-0 opacity-10 bg-center bg-cover" style="background-image: url('https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?ixlib=rb-1.2.1&auto=format&fit=crop&w=1500&q=80');"></div>
+                <div class="absolute -right-20 -bottom-20 w-80 h-80 bg-jawa-gold/10 rounded-full blur-3xl"></div>
+                <div class="absolute -left-20 -top-20 w-80 h-80 bg-jawa-accent/10 rounded-full blur-3xl"></div>
+
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+                        <div class="lg:col-span-7 space-y-6 text-center lg:text-left">
+                            <div class="inline-flex items-center space-x-2 bg-jawa-gold/10 border border-jawa-gold/30 text-jawa-gold px-4 py-1.5 rounded-full text-xs font-semibold tracking-wider uppercase mx-auto lg:mx-0">
+                                <span class="w-2 h-2 bg-jawa-gold rounded-full animate-ping"></span>
+                                <span data-i18n="hero-tag">Penerbitan Buku Warisan Rasa Modern</span>
+                            </div>
+                            <h1 class="font-serif-jawa text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight" id="hero-title">
+                                Menghidupkan Karya, <br class="hidden sm:inline">
+                                <span class="text-transparent bg-clip-text bg-gradient-to-r from-jawa-gold via-jawa-goldLight to-jawa-gold">Mengukir Aksara Nusantara</span>
+                            </h1>
+                            <p class="text-gray-300 text-base sm:text-lg max-w-2xl mx-auto lg:mx-0" data-i18n="hero-desc">
+                                Cerita Kita Publisher hadir sebagai wadah terpercaya bagi para penulis tanah air untuk menerbitkan mahakarya dengan sentuhan eksklusif, profesional, dan berkelas.
+                            </p>
+                            <div class="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 pt-4">
+                                <button onclick="navigateTo('naskah')" class="w-full sm:w-auto bg-jawa-gold hover:bg-yellow-500 text-jawa-dark px-8 py-4 rounded-xl font-bold text-sm tracking-wide transition-all duration-300 shadow-lg shadow-jawa-gold/20 flex items-center justify-center space-x-2">
+                                    <span data-i18n="hero-btn-primary">Terbitkan Naskah Anda</span>
+                                    <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                                </button>
+                                <a href="https://ceritakitapublisher.taplink.site/" target="_blank" class="w-full sm:w-auto border border-jawa-gold text-jawa-gold hover:bg-jawa-gold hover:text-jawa-dark px-8 py-4 rounded-xl font-semibold text-sm transition-all duration-300 flex items-center justify-center space-x-2">
+                                    <i data-lucide="external-link" class="w-4 h-4"></i>
+                                    <span>Kunjungi Taplink Kami</span>
+                                </a>
+                            </div>
+                            <!-- Small statistics -->
+                            <div class="grid grid-cols-3 gap-4 pt-8 border-t border-jawa-gold/20 max-w-md mx-auto lg:mx-0">
+                                <div>
+                                    <p class="text-2xl sm:text-3xl font-bold text-jawa-gold font-serif-jawa" id="stat-books">150+</p>
+                                    <p class="text-xs text-gray-400" data-i18n="stat-1">Buku Terbit</p>
+                                </div>
+                                <div>
+                                    <p class="text-2xl sm:text-3xl font-bold text-jawa-gold font-serif-jawa">98%</p>
+                                    <p class="text-xs text-gray-400" data-i18n="stat-2">Penulis Puas</p>
+                                </div>
+                                <div>
+                                    <p class="text-2xl sm:text-3xl font-bold text-jawa-gold font-serif-jawa" id="stat-blogs">45+</p>
+                                    <p class="text-xs text-gray-400" data-i18n="stat-3">Artikel Blog</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Gunungan Decorative / Book Showcase on Hero -->
+                        <div class="lg:col-span-5 flex justify-center relative">
+                            <div class="relative w-72 h-96 sm:w-80 sm:h-[450px]">
+                                <!-- Javanese Border Motif background -->
+                                <div class="absolute inset-0 border-4 border-jawa-gold/30 rounded-2xl p-4 flex flex-col justify-between items-center transform rotate-3 bg-jawa-bronze/40 backdrop-blur-sm shadow-2xl">
+                                    <div class="w-full border border-jawa-gold/20 p-2 rounded flex justify-between text-[10px] text-jawa-gold/70">
+                                        <span data-i18n="decor-badge">SERI PREMIUM</span>
+                                        <span>EST. 2024</span>
+                                    </div>
+                                    <div class="text-center">
+                                        <svg class="w-24 h-24 mx-auto text-jawa-gold/50 mb-4" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                            <path d="M12 2L2 22h20L12 2z" stroke-linejoin="round"/>
+                                            <path d="M12 6l6 11H6z" fill="currentColor"/>
+                                        </svg>
+                                        <h3 class="font-serif-jawa text-2xl text-jawa-gold font-bold" data-i18n="decor-title">Aksara Jiwa</h3>
+                                        <p class="text-xs text-gray-400 mt-2" data-i18n="decor-sub">Kumpulan Kisah Klasik Modern</p>
+                                    </div>
+                                    <div class="w-full text-center text-[10px] text-jawa-gold bg-jawa-dark/50 py-2 rounded border border-jawa-gold/20">
+                                        CERITA KITA PUBLISHER
+                                    </div>
+                                </div>
+                                <!-- Second offset decorative stack -->
+                                <div class="absolute inset-0 border border-jawa-gold/50 rounded-2xl transform -rotate-3 bg-gradient-to-b from-jawa-bronze to-jawa-dark -z-10 shadow-xl"></div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
-        </div>
-    </section>
 
-    <!-- Footer -->
-    <footer class="bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 pt-16 pb-8 transition-colors duration-300">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-12">
-                <!-- Brand -->
-                <div class="lg:col-span-1">
-                    <div class="mb-6">
-                        <img 
-                            id="footer-logo-img"
-                            src="LOGO WEB.png" 
-                            alt="Logo Cerita Kita Publisher" 
-                            class="h-16 w-auto object-contain drop-shadow-sm"
-                            onerror="this.onerror=null; this.src='https://placehold.co/200x80/ffffff/4f46e5?text=CeritaKita.';"
-                        />
+            <!-- Mengapa Memilih Kami Section -->
+            <div class="py-20">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div class="text-center max-w-3xl mx-auto space-y-4">
+                        <span class="text-jawa-accent uppercase tracking-widest text-xs font-bold block" data-i18n="why-tag">Keunggulan Cerita Kita</span>
+                        <h2 class="font-serif-jawa text-3xl sm:text-4xl font-bold" data-i18n="why-title">Pelayanan Penerbitan Eksklusif & Profesional</h2>
+                        <p class="text-gray-400" data-i18n="why-desc">Kami menjamin setiap baris tulisan Anda dikemas dengan estetika tinggi, didistribusikan dengan tepat, serta memberikan royalti yang adil dan transparan.</p>
+                        <div class="w-24 h-1 bg-gradient-to-r from-transparent via-jawa-gold to-transparent mx-auto mt-4"></div>
                     </div>
-                    <p class="text-slate-600 dark:text-slate-400 mb-6 leading-relaxed" data-i18n="ftDesc">
-                        Penerbit buku indie terpercaya yang berdedikasi untuk membantu penulis lokal menghasilkan karya berkualitas tinggi.
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mt-16">
+                        <!-- Card 1 -->
+                        <div class="bg-jawa-card p-8 rounded-2xl border border-jawa-gold/10 card-shadow hover:-translate-y-2 transition-all duration-300 group">
+                            <div class="w-12 h-12 bg-jawa-gold/10 rounded-xl flex items-center justify-center text-jawa-gold mb-6 group-hover:bg-jawa-gold group-hover:text-jawa-dark transition-all duration-300">
+                                <i data-lucide="edit-3"></i>
+                            </div>
+                            <h3 class="font-serif-jawa text-xl font-bold mb-3" data-i18n="feat-1-title">Editing & Layout Premium</h3>
+                            <p class="text-sm text-gray-400 leading-relaxed" data-i18n="feat-1-desc">Editor berpengalaman kami akan menyempurnakan naskah Anda tanpa menghilangkan karakter dan gaya bahasa khas Anda sendiri.</p>
+                        </div>
+                        <!-- Card 2 -->
+                        <div class="bg-jawa-card p-8 rounded-2xl border border-jawa-gold/10 card-shadow hover:-translate-y-2 transition-all duration-300 group">
+                            <div class="w-12 h-12 bg-jawa-gold/10 rounded-xl flex items-center justify-center text-jawa-gold mb-6 group-hover:bg-jawa-gold group-hover:text-jawa-dark transition-all duration-300">
+                                <i data-lucide="palette"></i>
+                            </div>
+                            <h3 class="font-serif-jawa text-xl font-bold mb-3" data-i18n="feat-2-title">Desain Cover Khas Jawa Klasik</h3>
+                            <p class="text-sm text-gray-400 leading-relaxed" data-i18n="feat-2-desc">Setiap buku mendapatkan sentuhan desain cover modern bernuansa lokal klasik yang memikat mata pembaca pada pandangan pertama.</p>
+                        </div>
+                        <!-- Card 3 -->
+                        <div class="bg-jawa-card p-8 rounded-2xl border border-jawa-gold/10 card-shadow hover:-translate-y-2 transition-all duration-300 group">
+                            <div class="w-12 h-12 bg-jawa-gold/10 rounded-xl flex items-center justify-center text-jawa-gold mb-6 group-hover:bg-jawa-gold group-hover:text-jawa-dark transition-all duration-300">
+                                <i data-lucide="trending-up"></i>
+                            </div>
+                            <h3 class="font-serif-jawa text-xl font-bold mb-3" data-i18n="feat-3-title">Promosi & SEO Optimal</h3>
+                            <p class="text-sm text-gray-400 leading-relaxed" data-i18n="feat-3-desc">Buku Anda akan memiliki landing page ber-SEO tinggi serta dipromosikan melalui media digital secara berkala dan terstruktur.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Spotlight Buku Terbaru -->
+            <div class="py-16 bg-jawa-dark text-white border-t border-b border-jawa-gold/30">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div class="flex flex-col md:flex-row justify-between items-center mb-12">
+                        <div class="text-center md:text-left mb-6 md:mb-0">
+                            <span class="text-jawa-gold text-xs uppercase tracking-widest font-bold" data-i18n="spotlight-tag">Karya Pilihan Redaksi</span>
+                            <h2 class="font-serif-jawa text-3xl font-bold text-white mt-1" data-i18n="spotlight-title">Sorotan Buku Terpopuler</h2>
+                        </div>
+                        <button onclick="navigateTo('katalog')" class="text-jawa-gold hover:text-white flex items-center space-x-2 text-sm font-semibold border border-jawa-gold/30 hover:border-jawa-gold px-5 py-2.5 rounded-lg transition-all duration-300">
+                            <span data-i18n="spotlight-btn">Lihat Semua Katalog</span>
+                            <i data-lucide="chevron-right" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+
+                    <!-- Top 3 Books Row -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-8" id="featured-books-list">
+                        <!-- Rendered via JS -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Call to Action (CTA) -->
+            <div class="py-20 relative overflow-hidden">
+                <div class="max-w-5xl mx-auto px-4 text-center relative z-10 space-y-6">
+                    <span class="text-jawa-accent font-serif-jawa italic text-lg block" data-i18n="cta-tag">Wujudkan Mimpi Menjadi Penulis Terkenal</span>
+                    <h2 class="font-serif-jawa text-3xl sm:text-4xl lg:text-5xl font-bold" data-i18n="cta-title">Apakah Anda Memiliki Naskah Menarik?</h2>
+                    <p class="text-gray-400 max-w-2xl mx-auto" data-i18n="cta-desc">
+                        Jangan biarkan naskah berharga Anda tersimpan di dalam laci. Terbitkan bersama tim ahli Cerita Kita Publisher dan rasakan proses penerbitan yang istimewa.
                     </p>
-                    <div class="flex space-x-4">
-                        <a href="https://ceritakitapublisher.taplink.site/" target="_blank" rel="noopener noreferrer" class="w-10 h-10 rounded-full bg-slate-50 dark:bg-slate-800 flex items-center justify-center text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">
-                            <i data-lucide="instagram" class="w-5 h-5"></i>
-                        </a>
-                        <a href="https://ceritakitapublisher.taplink.site/" target="_blank" rel="noopener noreferrer" class="w-10 h-10 rounded-full bg-slate-50 dark:bg-slate-800 flex items-center justify-center text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
-                            <i data-lucide="facebook" class="w-5 h-5"></i>
-                        </a>
-                        <a href="https://ceritakitapublisher.taplink.site/" target="_blank" rel="noopener noreferrer" class="w-10 h-10 rounded-full bg-slate-50 dark:bg-slate-800 flex items-center justify-center text-slate-400 hover:text-sky-500 dark:hover:text-sky-400 transition-colors">
-                            <i data-lucide="twitter" class="w-5 h-5"></i>
-                        </a>
+                    <div class="pt-6">
+                        <button onclick="navigateTo('naskah')" class="bg-jawa-dark hover:bg-jawa-bronze text-jawa-gold hover:text-white px-10 py-4 rounded-xl font-bold text-sm tracking-wider transition-all duration-300 shadow-xl inline-flex items-center space-x-3 border border-jawa-gold/50">
+                            <i data-lucide="file-up" class="w-5 h-5"></i>
+                            <span data-i18n="cta-btn">Kirim Naskah Sekarang</span>
+                        </button>
+                    </div>
+                </div>
+                <!-- Javanese style corners -->
+                <div class="absolute top-4 left-4 w-12 h-12 border-t-2 border-l-2 border-jawa-gold/40"></div>
+                <div class="absolute top-4 right-4 w-12 h-12 border-t-2 border-r-2 border-jawa-gold/40"></div>
+                <div class="absolute bottom-4 left-4 w-12 h-12 border-b-2 border-l-2 border-jawa-gold/40"></div>
+                <div class="absolute bottom-4 right-4 w-12 h-12 border-b-2 border-r-2 border-jawa-gold/40"></div>
+            </div>
+        </section>
+
+
+        <!-- ================= SECTION: KATALOG ================= -->
+        <section id="section-katalog" class="hidden py-16 transition-opacity duration-300">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center max-w-2xl mx-auto mb-12 space-y-4">
+                    <span class="text-jawa-accent uppercase tracking-widest text-xs font-bold block" data-i18n="katalog-tag">Galeri Karya</span>
+                    <h1 class="font-serif-jawa text-4xl font-bold" data-i18n="katalog-title">Katalog Digital Buku</h1>
+                    <p class="text-gray-400" data-i18n="katalog-desc">Temukan koleksi novel, antologi puisi, buku sejarah, dan karya-karya terbaik dari penulis Nusantara yang kami terbitkan secara eksklusif.</p>
+                </div>
+
+                <!-- Search & Filters -->
+                <div class="bg-jawa-card p-6 rounded-2xl border border-jawa-gold/20 card-shadow mb-10">
+                    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                        <div class="relative flex-1">
+                            <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400">
+                                <i data-lucide="search" class="w-5 h-5"></i>
+                            </span>
+                            <input type="text" id="katalog-search" oninput="filterKatalog()" placeholder="Cari judul buku, penulis, atau genre..." class="w-full pl-10 pr-4 py-3 bg-jawa-cream/50 border border-jawa-gold/20 focus:border-jawa-gold rounded-xl focus:ring-1 focus:ring-jawa-gold outline-none transition-all duration-300 text-sm">
+                        </div>
+                        <div class="flex flex-wrap gap-2" id="genre-filter-container">
+                            <!-- Populated with JS to allow dynamic translated buttons -->
+                        </div>
                     </div>
                 </div>
 
-                <!-- Links -->
-                <div>
-                    <h4 class="font-bold text-slate-900 dark:text-white mb-6 uppercase tracking-wider text-sm" data-i18n="ftNav">Navigasi</h4>
-                    <ul class="space-y-4 text-slate-600 dark:text-slate-400">
-                        <li><a href="#" class="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Tentang Kami</a></li>
-                        <li><a href="#" class="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Paket Penerbitan</a></li>
-                        <li><a href="#" class="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Katalog Buku</a></li>
-                        <li><a href="#" class="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Cara Menerbitkan</a></li>
-                    </ul>
+                <!-- Book Grid -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8" id="katalog-grid">
+                    <!-- Rendered via JS -->
+                </div>
+            </div>
+        </section>
+
+
+        <!-- ================= SECTION: KIRIM NASKAH ================= -->
+        <section id="section-naskah" class="hidden py-16 transition-opacity duration-300">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center max-w-2xl mx-auto mb-12 space-y-4">
+                    <span class="text-jawa-accent uppercase tracking-widest text-xs font-bold block" data-i18n="naskah-tag">Kesempatan Emas</span>
+                    <h1 class="font-serif-jawa text-4xl font-bold" data-i18n="naskah-title">Formulir Pengiriman Naskah</h1>
+                    <p class="text-gray-400" data-i18n="naskah-desc">Bergabunglah dengan ekosistem penulis profesional kami. Silakan lengkapi formulir di bawah ini dengan informasi naskah terbaik Anda.</p>
                 </div>
 
-                <!-- Legal -->
-                <div>
-                    <h4 class="font-bold text-slate-900 dark:text-white mb-6 uppercase tracking-wider text-sm" data-i18n="ftTerms">Ketentuan</h4>
-                    <ul class="space-y-4 text-slate-600 dark:text-slate-400">
-                        <li><a href="#" class="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Syarat & Ketentuan</a></li>
-                        <li><a href="#" class="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Kebijakan Privasi</a></li>
-                        <li><a href="#" class="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Royalti Penulis</a></li>
-                        <li><a href="#" class="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">FAQ</a></li>
-                    </ul>
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
+                    <!-- Guidelines / Alur Pengiriman -->
+                    <div class="lg:col-span-5 bg-jawa-dark text-white p-8 rounded-2xl border border-jawa-gold/30 space-y-6">
+                        <h2 class="font-serif-jawa text-2xl text-jawa-gold font-bold" data-i18n="flow-title">Alur Penerbitan Kami</h2>
+                        
+                        <div class="space-y-6 relative border-l border-jawa-gold/20 pl-6 ml-3">
+                            <!-- Step 1 -->
+                            <div class="relative">
+                                <span class="absolute -left-[37px] top-0 bg-jawa-gold text-jawa-dark w-6 h-6 rounded-full flex items-center justify-center font-bold text-xs">1</span>
+                                <h3 class="font-serif-jawa text-lg font-bold text-white" data-i18n="flow-1-title">Isi Formulir & Unggah</h3>
+                                <p class="text-xs text-gray-400 mt-1" data-i18n="flow-1-desc">Lengkapi data diri, sinopsis, bab sampel naskah lengkap melalui form di sebelah.</p>
+                            </div>
+                            <!-- Step 2 -->
+                            <div class="relative">
+                                <span class="absolute -left-[37px] top-0 bg-jawa-gold text-jawa-dark w-6 h-6 rounded-full flex items-center justify-center font-bold text-xs">2</span>
+                                <h3 class="font-serif-jawa text-lg font-bold text-white" data-i18n="flow-2-title">Review Dewan Redaksi</h3>
+                                <p class="text-xs text-gray-400 mt-1" data-i18n="flow-2-desc">Tim kurator kami akan menilai potensi naskah Anda dalam jangka waktu maksimal 14 hari kerja.</p>
+                            </div>
+                            <!-- Step 3 -->
+                            <div class="relative">
+                                <span class="absolute -left-[37px] top-0 bg-jawa-gold text-jawa-dark w-6 h-6 rounded-full flex items-center justify-center font-bold text-xs">3</span>
+                                <h3 class="font-serif-jawa text-lg font-bold text-white" data-i18n="flow-3-title">Kesepakatan Penerbitan</h3>
+                                <p class="text-xs text-gray-400 mt-1" data-i18n="flow-3-desc">Jika naskah Anda disetujui, kami akan mengirimkan MoU kontrak penerbitan yang saling menguntungkan.</p>
+                            </div>
+                            <!-- Step 4 -->
+                            <div class="relative">
+                                <span class="absolute -left-[37px] top-0 bg-jawa-gold text-jawa-dark w-6 h-6 rounded-full flex items-center justify-center font-bold text-xs">4</span>
+                                <h3 class="font-serif-jawa text-lg font-bold text-white" data-i18n="flow-4-title">Proses Cetak & Promosi</h3>
+                                <p class="text-xs text-gray-400 mt-1" data-i18n="flow-4-desc">Naskah diedit, didesain layout & cover, didaftarkan ISBN, lalu siap cetak dan rilis!</p>
+                            </div>
+                        </div>
+
+                        <!-- Info tambahan -->
+                        <div class="bg-jawa-bronze/40 p-4 rounded-xl border border-jawa-gold/20 flex items-start space-x-3">
+                            <i data-lucide="info" class="text-jawa-gold w-5 h-5 flex-shrink-0 mt-0.5"></i>
+                            <p class="text-xs text-gray-300 leading-relaxed" data-i18n="flow-info">
+                                <strong>PENTING:</strong> Pastikan naskah Anda asli (bukan plagiasi), tidak menyinggung SARA ekstrem, dan merupakan karya yang selesai ditulis. Format naskah: PDF atau Word (Docx).
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Submission Form Card -->
+                    <div class="lg:col-span-7 bg-jawa-card p-8 rounded-2xl border border-jawa-gold/15 card-shadow">
+                        <form id="form-submit-naskah" onsubmit="handleNaskahSubmit(event)" class="space-y-6">
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                                <div>
+                                    <label class="block text-xs font-bold uppercase tracking-wider mb-2 text-jawa-gold" data-i18n="form-label-name">Nama Lengkap Penulis</label>
+                                    <input type="text" required name="nama_penulis" placeholder="Contoh: Raden Wijaya" class="w-full px-4 py-3 bg-jawa-cream/40 border border-jawa-gold/30 rounded-xl focus:border-jawa-gold outline-none focus:ring-1 focus:ring-jawa-gold transition text-sm">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold uppercase tracking-wider mb-2 text-jawa-gold" data-i18n="form-label-email">Alamat Email Aktif</label>
+                                    <input type="email" required name="email_penulis" placeholder="Contoh: raden@cerita.com" class="w-full px-4 py-3 bg-jawa-cream/40 border border-jawa-gold/30 rounded-xl focus:border-jawa-gold outline-none focus:ring-1 focus:ring-jawa-gold transition text-sm">
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                                <div>
+                                    <label class="block text-xs font-bold uppercase tracking-wider mb-2 text-jawa-gold" data-i18n="form-label-wa">No. WhatsApp</label>
+                                    <input type="tel" required name="telp_penulis" placeholder="Contoh: 085878976277" class="w-full px-4 py-3 bg-jawa-cream/40 border border-jawa-gold/30 rounded-xl focus:border-jawa-gold outline-none focus:ring-1 focus:ring-jawa-gold transition text-sm">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold uppercase tracking-wider mb-2 text-jawa-gold" data-i18n="form-label-genre">Kategori Genre Buku</label>
+                                    <select name="genre_buku" class="w-full px-4 py-3 bg-jawa-cream/40 border border-jawa-gold/30 rounded-xl focus:border-jawa-gold outline-none focus:ring-1 focus:ring-jawa-gold transition text-sm">
+                                        <option value="Novel">Novel Fiksi</option>
+                                        <option value="Sastra">Sastra Klasik/Modern</option>
+                                        <option value="Sejarah">Sejarah & Budaya</option>
+                                        <option value="Puisi">Antologi Puisi</option>
+                                        <option value="Lainnya">Lainnya</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-bold uppercase tracking-wider mb-2 text-jawa-gold" data-i18n="form-label-title">Judul Naskah Buku</label>
+                                <input type="text" required name="judul_naskah" placeholder="Contoh: Kidung Agung Mataram Kuno" class="w-full px-4 py-3 bg-jawa-cream/40 border border-jawa-gold/30 rounded-xl focus:border-jawa-gold outline-none focus:ring-1 focus:ring-jawa-gold transition text-sm">
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-bold uppercase tracking-wider mb-2 text-jawa-gold" data-i18n="form-label-synopsis">Sinopsis Singkat</label>
+                                <textarea name="sinopsis" rows="4" required placeholder="Gambarkan kisah atau materi buku Anda secara menarik di sini..." class="w-full px-4 py-3 bg-jawa-cream/40 border border-jawa-gold/30 rounded-xl focus:border-jawa-gold outline-none focus:ring-1 focus:ring-jawa-gold transition text-sm resize-none"></textarea>
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-bold uppercase tracking-wider mb-2 text-jawa-gold" data-i18n="form-label-upload">Unggah File Naskah (PDF/DOCX)</label>
+                                <div class="border-2 border-dashed border-jawa-gold/40 hover:border-jawa-gold bg-jawa-cream/20 p-6 rounded-xl text-center cursor-pointer relative" onclick="triggerFileInput('file-input')">
+                                    <i data-lucide="cloud-upload" class="w-10 h-10 text-jawa-gold mx-auto mb-2"></i>
+                                    <span class="block text-sm font-semibold" id="file-label" data-i18n="form-upload-placeholder">Pilih file naskah Anda</span>
+                                    <span class="block text-xs text-gray-400 mt-1" data-i18n="form-upload-limit">Maksimal ukuran file: 10 MB</span>
+                                    <input type="file" id="file-input" class="hidden" onchange="handleFileChange(this, 'file-label')" required>
+                                </div>
+                            </div>
+
+                            <button type="submit" class="w-full bg-jawa-dark hover:bg-jawa-bronze text-jawa-gold hover:text-white py-4 rounded-xl font-bold transition-all duration-300 flex items-center justify-center space-x-2 border border-jawa-gold/40">
+                                <i data-lucide="send" class="w-4 h-4"></i>
+                                <span data-i18n="form-btn">Kirim Naskah ke Dewan Redaksi</span>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- ================= SECTION: BLOG / ARTIKEL ================= -->
+        <section id="section-blog" class="hidden py-16 transition-opacity duration-300">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center max-w-2xl mx-auto mb-12 space-y-4">
+                    <span class="text-jawa-accent uppercase tracking-widest text-xs font-bold block" data-i18n="blog-tag">Ruang Literasi</span>
+                    <h1 class="font-serif-jawa text-4xl font-bold" data-i18n="blog-title">Kabar Cerita & Tips Kepenulisan</h1>
+                    <p class="text-gray-400" data-i18n="blog-desc">Pelajari teknik menulis karya fiksi, rahasia menembus penerbitan major, serta berita terkini seputar dunia literasi lokal maupun nasional.</p>
                 </div>
 
-                <!-- Contact -->
+                <!-- Articles Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8" id="blog-grid">
+                    <!-- Rendered via JS -->
+                </div>
+            </div>
+        </section>
+
+
+        <!-- ================= SECTION: ADMIN DASHBOARD ================= -->
+        <section id="section-admin" class="hidden py-10 min-h-screen">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                
+                <!-- Admin Header -->
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-8 mb-8 border-b border-gray-200">
+                    <div>
+                        <h1 class="font-serif-jawa text-3xl font-bold" data-i18n="admin-title">Admin Control Hub</h1>
+                        <p class="text-sm text-gray-400 mt-1" data-i18n="admin-subtitle">Kelola portofolio, naskah masuk, blog post, dan unduh paket hosting DomaiNesia.</p>
+                    </div>
+                    <div class="flex items-center space-x-3 mt-4 sm:mt-0">
+                        <button onclick="logOutAdmin()" class="bg-red-500/10 hover:bg-red-500/20 text-red-500 border border-red-500/30 px-4 py-2 rounded-lg text-xs font-semibold flex items-center space-x-2 transition">
+                            <i data-lucide="log-out" class="w-3.5 h-3.5"></i>
+                            <span data-i18n="admin-logout">Logout Sesi</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Admin Tabs -->
+                <div class="flex flex-wrap border-b border-gray-200 mb-8 bg-jawa-card p-2 rounded-xl border border-jawa-gold/20">
+                    <button onclick="switchAdminTab('books')" class="admin-tab active bg-jawa-dark text-jawa-gold px-5 py-2.5 rounded-lg text-xs font-bold mr-2 transition-all duration-200" data-i18n="admin-tab-1">Kelola Katalog Buku</button>
+                    <button onclick="switchAdminTab('submissions')" class="admin-tab text-gray-400 hover:bg-jawa-dark/50 px-5 py-2.5 rounded-lg text-xs font-bold mr-2 transition-all duration-200" data-i18n="admin-tab-2">Naskah Masuk</button>
+                    <button onclick="switchAdminTab('blogs')" class="admin-tab text-gray-400 hover:bg-jawa-dark/50 px-5 py-2.5 rounded-lg text-xs font-bold mr-2 transition-all duration-200" data-i18n="admin-tab-3">Kelola Blog/Artikel</button>
+                    <button onclick="switchAdminTab('hosting')" class="admin-tab text-gray-400 hover:bg-jawa-dark/50 px-5 py-2.5 rounded-lg text-xs font-bold transition-all duration-200">DomaiNesia Toolkit</button>
+                </div>
+
+                <!-- SUB-TAB 1: Kelola Buku -->
+                <div id="admin-sub-books" class="space-y-6">
+                    <div class="flex justify-between items-center bg-jawa-card p-4 rounded-xl border border-jawa-gold/20">
+                        <span class="text-sm font-bold" data-i18n="adm-books-header">Daftar Buku Terbit</span>
+                        <button onclick="openAddBookModal()" class="bg-jawa-dark hover:bg-jawa-bronze text-jawa-gold px-4 py-2.5 rounded-lg text-xs font-bold flex items-center space-x-1.5 transition">
+                            <i data-lucide="plus" class="w-4 h-4"></i>
+                            <span data-i18n="adm-books-btn">Tambah Buku Baru</span>
+                        </button>
+                    </div>
+
+                    <!-- Books Table -->
+                    <div class="bg-jawa-card rounded-xl border border-jawa-gold/20 overflow-hidden shadow-sm">
+                        <table class="min-w-full divide-y divide-jawa-gold/20">
+                            <thead class="bg-jawa-dark/40">
+                                <tr>
+                                    <th class="px-6 py-3.5 text-left text-xs font-bold text-gray-400 uppercase tracking-wider" data-i18n="tbl-book">Buku</th>
+                                    <th class="px-6 py-3.5 text-left text-xs font-bold text-gray-400 uppercase tracking-wider" data-i18n="tbl-genre">Genre</th>
+                                    <th class="px-6 py-3.5 text-left text-xs font-bold text-gray-400 uppercase tracking-wider" data-i18n="tbl-price">Harga</th>
+                                    <th class="px-6 py-3.5 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">Status</th>
+                                    <th class="px-6 py-3.5 text-right text-xs font-bold text-gray-400 uppercase tracking-wider" data-i18n="tbl-action">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-jawa-gold/10" id="admin-books-table">
+                                <!-- Rendered dynamically -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- SUB-TAB 2: Naskah Masuk -->
+                <div id="admin-sub-submissions" class="hidden space-y-6">
+                    <div class="bg-jawa-card p-4 rounded-xl border border-jawa-gold/20">
+                        <span class="text-sm font-bold" data-i18n="adm-submissions-header">Daftar Naskah yang Dikirim oleh Penulis</span>
+                    </div>
+
+                    <div class="bg-jawa-card rounded-xl border border-jawa-gold/20 overflow-hidden shadow-sm">
+                        <table class="min-w-full divide-y divide-jawa-gold/20">
+                            <thead class="bg-jawa-dark/40">
+                                <tr>
+                                    <th class="px-6 py-3.5 text-left text-xs font-bold text-gray-400 uppercase tracking-wider" data-i18n="tbl-author">Penulis / Kontak</th>
+                                    <th class="px-6 py-3.5 text-left text-xs font-bold text-gray-400 uppercase tracking-wider" data-i18n="tbl-title">Judul Naskah</th>
+                                    <th class="px-6 py-3.5 text-left text-xs font-bold text-gray-400 uppercase tracking-wider" data-i18n="tbl-genre">Genre</th>
+                                    <th class="px-6 py-3.5 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">Status</th>
+                                    <th class="px-6 py-3.5 text-right text-xs font-bold text-gray-400 uppercase tracking-wider" data-i18n="tbl-action">Tindakan</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-jawa-gold/10" id="admin-submissions-table">
+                                <!-- Rendered dynamically -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- SUB-TAB 3: Kelola Blog -->
+                <div id="admin-sub-blogs" class="hidden space-y-6">
+                    <div class="flex justify-between items-center bg-jawa-card p-4 rounded-xl border border-jawa-gold/20">
+                        <span class="text-sm font-bold" data-i18n="adm-blogs-header">Manajemen Berita & Artikel Terbit</span>
+                        <button onclick="openAddBlogModal()" class="bg-jawa-dark hover:bg-jawa-bronze text-jawa-gold px-4 py-2.5 rounded-lg text-xs font-bold flex items-center space-x-1.5 transition">
+                            <i data-lucide="plus" class="w-4 h-4"></i>
+                            <span data-i18n="adm-blogs-btn">Tulis Artikel Baru</span>
+                        </button>
+                    </div>
+
+                    <div class="bg-jawa-card rounded-xl border border-jawa-gold/20 overflow-hidden shadow-sm">
+                        <table class="min-w-full divide-y divide-jawa-gold/20">
+                            <thead class="bg-jawa-dark/40">
+                                <tr>
+                                    <th class="px-6 py-3.5 text-left text-xs font-bold text-gray-400 uppercase tracking-wider" data-i18n="tbl-title">Judul Artikel</th>
+                                    <th class="px-6 py-3.5 text-left text-xs font-bold text-gray-400 uppercase tracking-wider" data-i18n="tbl-category">Kategori</th>
+                                    <th class="px-6 py-3.5 text-left text-xs font-bold text-gray-400 uppercase tracking-wider" data-i18n="tbl-date">Tanggal</th>
+                                    <th class="px-6 py-3.5 text-right text-xs font-bold text-gray-400 uppercase tracking-wider" data-i18n="tbl-action">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-jawa-gold/10" id="admin-blogs-table">
+                                <!-- Rendered dynamically -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- SUB-TAB 4: DomaiNesia Hosting Toolkit -->
+                <div id="admin-sub-hosting" class="hidden space-y-6">
+                    <div class="bg-jawa-card p-6 rounded-2xl border border-jawa-gold/20 card-shadow space-y-4">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-10 h-10 bg-jawa-gold/10 rounded-lg flex items-center justify-center text-jawa-gold">
+                                <i data-lucide="server"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-serif-jawa text-lg font-bold">DomaiNesia & cPanel Deployment Kit</h3>
+                                <p class="text-xs text-gray-400">Gunakan kode MySQL dan PHP di bawah ini untuk membuat website dinamis Anda berjalan di hosting DomaiNesia.</p>
+                            </div>
+                        </div>
+
+                        <div class="border-t border-jawa-gold/20 pt-4 space-y-6">
+                            <div>
+                                <h4 class="text-sm font-bold mb-2 flex items-center space-x-1.5 text-jawa-gold">
+                                    <i data-lucide="database" class="w-4 h-4"></i>
+                                    <span>Langkah 1: Skema Database (MySQL)</span>
+                                </h4>
+                                <p class="text-xs text-gray-400 mb-3">Gunakan tab <strong>phpMyAdmin</strong> di cPanel DomaiNesia Anda untuk mengeksekusi script SQL ini.</p>
+                                <pre class="bg-black/40 text-gray-300 p-4 rounded-xl text-xs overflow-x-auto font-mono max-h-48 border border-jawa-gold/10">
+CREATE DATABASE IF NOT EXISTS ceritakita_db;
+USE ceritakita_db;
+
+CREATE TABLE IF NOT EXISTS naskah (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nama_penulis VARCHAR(100) NOT NULL,
+    email_penulis VARCHAR(100) NOT NULL,
+    telp_penulis VARCHAR(20) NOT NULL,
+    genre_buku VARCHAR(50) NOT NULL,
+    judul_naskah VARCHAR(150) NOT NULL,
+    sinopsis TEXT NOT NULL,
+    tanggal_kirim TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    status_proses VARCHAR(20) DEFAULT 'Direview'
+);</pre>
+                            </div>
+
+                            <div>
+                                <h4 class="text-sm font-bold mb-2 flex items-center space-x-1.5 text-jawa-gold">
+                                    <i data-lucide="file-code" class="w-4 h-4"></i>
+                                    <span>Langkah 2: Koneksi Database (`config.php`)</span>
+                                </h4>
+                                <p class="text-xs text-gray-400 mb-3">Buat file `config.php` melalui File Manager cPanel DomaiNesia Anda di folder `public_html`.</p>
+                                <pre class="bg-black/40 text-gray-300 p-4 rounded-xl text-xs overflow-x-auto font-mono max-h-48 border border-jawa-gold/10">
+&lt;?php
+define('DB_SERVER', 'localhost');
+define('DB_USERNAME', 'namauser_db'); // Sesuaikan dengan user cPanel Anda
+define('DB_PASSWORD', 'password_anda'); // Sandi database
+define('DB_NAME', 'namauser_ceritakita_db');
+
+$conn = mysqli_connect(DB_SERVER, DB_USERNAME, DB_PASSWORD, DB_NAME);
+
+if($conn === false){
+    die("Koneksi gagal: " . mysqli_connect_error());
+}</pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="bg-jawa-dark text-white border-t border-jawa-gold/30 relative z-10 py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div class="space-y-4 md:col-span-2">
+                    <div class="flex items-center space-x-2">
+                        <div class="w-8 h-8 bg-jawa-gold rounded flex items-center justify-center text-jawa-dark font-bold font-serif-jawa">C</div>
+                        <span class="font-serif-jawa text-lg font-bold tracking-wider text-jawa-gold">CERITA KITA PUBLISHER</span>
+                    </div>
+                    <p class="text-xs text-gray-400 leading-relaxed max-w-sm" data-i18n="footer-desc">
+                        Menerbitkan naskah-naskah berharga di Indonesia dengan pelayanan desain berkelas Jawa Klasik Modern. Kami membantu kesuksesan literasi Anda menuju kancah nasional.
+                    </p>
+                    <div class="flex space-x-3 text-gray-400 pt-2">
+                        <a href="https://ceritakitapublisher.taplink.site/" target="_blank" class="hover:text-jawa-gold transition" title="Taplink"><i data-lucide="external-link" class="w-4 h-4"></i></a>
+                        <a href="#" class="hover:text-jawa-gold transition"><i data-lucide="instagram" class="w-4 h-4"></i></a>
+                        <a href="#" class="hover:text-jawa-gold transition"><i data-lucide="facebook" class="w-4 h-4"></i></a>
+                        <a href="#" class="hover:text-jawa-gold transition"><i data-lucide="youtube" class="w-4 h-4"></i></a>
+                    </div>
+                </div>
                 <div>
-                    <h4 class="font-bold text-slate-900 dark:text-white mb-6 uppercase tracking-wider text-sm" data-i18n="ftContact">Hubungi Kami</h4>
-                    <ul class="space-y-4 text-slate-600 dark:text-slate-400">
-                        <li class="flex items-start gap-3">
-                            <i data-lucide="map-pin" class="w-5 h-5 text-indigo-600 dark:text-indigo-400 shrink-0 mt-0.5"></i>
-                            <span>Kaliurang, Yogyakarta</span>
-                        </li>
-                        <li class="flex items-center gap-3">
-                            <i data-lucide="phone" class="w-5 h-5 text-indigo-600 dark:text-indigo-400 shrink-0"></i>
-                            <a href="https://wa.me/6285878976277" target="_blank" rel="noopener noreferrer" class="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">+62 858-7897-6277</a>
-                        </li>
-                        <li class="flex items-center gap-3">
-                            <i data-lucide="mail" class="w-5 h-5 text-indigo-600 dark:text-indigo-400 shrink-0"></i>
-                            <a href="https://ceritakitapublisher.taplink.site/" target="_blank" rel="noopener noreferrer" class="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">ceritakitapublisher.taplink.site</a>
-                        </li>
+                    <h4 class="font-serif-jawa text-sm font-semibold text-white mb-4" data-i18n="footer-header-1">Navigasi Utama</h4>
+                    <ul class="space-y-2 text-xs text-gray-400">
+                        <li><button onclick="navigateTo('home')" class="hover:text-jawa-gold transition" data-i18n="nav-home">Beranda Utama</button></li>
+                        <li><button onclick="navigateTo('katalog')" class="hover:text-jawa-gold transition" data-i18n="nav-katalog">Katalog Digital Buku</button></li>
+                        <li><button onclick="navigateTo('naskah')" class="hover:text-jawa-gold transition" data-i18n="nav-naskah">Kirim Naskah Saya</button></li>
+                        <li><button onclick="navigateTo('blog')" class="hover:text-jawa-gold transition" data-i18n="nav-blog">Artikel Literasi</button></li>
+                        <li><a href="https://ceritakitapublisher.taplink.site/" target="_blank" class="hover:text-jawa-gold transition block">Taplink Portal</a></li>
                     </ul>
+                </div>
+                <div>
+                    <h4 class="font-serif-jawa text-sm font-semibold text-white mb-4" data-i18n="footer-header-2">Informasi Kontak</h4>
+                    <p class="text-xs text-gray-400 leading-relaxed space-y-1">
+                        <span>Jalan Kaliurang KM 10, Sleman, Yogyakarta</span><br>
+                        <span>Telp/WA: +62 858-7897-6277</span><br>
+                        <span>Email: ceritakitapublisher@gmail.com</span><br>
+                        <a href="https://ceritakitapublisher.taplink.site/" target="_blank" class="text-jawa-gold hover:underline block pt-1">ceritakitapublisher.taplink.site</a>
+                    </p>
+                    <p class="text-[10px] text-jawa-gold mt-4 font-semibold">
+                        Domain Terdaftar: ceritakitapublisher.web.id
+                    </p>
                 </div>
             </div>
 
-            <div class="border-t border-slate-200 dark:border-slate-800 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
-                <p class="text-slate-500 dark:text-slate-400 text-sm text-center md:text-left">
-                    &copy; <span id="current-year"></span> Cerita Kita Publisher. <span data-i18n="ftCopy">Seluruh Hak Cipta Dilindungi.</span>
-                </p>
-                <p class="text-slate-400 dark:text-slate-500 text-sm flex items-center gap-1">
-                    <span data-i18n="ftMade">Dibuat dengan</span> <span class="text-red-500">♥</span> Indonesia
-                </p>
+            <div class="border-t border-jawa-gold/15 mt-8 pt-6 flex flex-col sm:flex-row justify-between items-center text-[11px] text-gray-500">
+                <span>© 2026 Cerita Kita Publisher. All Rights Reserved.</span>
+                <span class="mt-2 sm:mt-0" data-i18n="footer-sub">Premium Klasik Modern Desain</span>
             </div>
         </div>
     </footer>
 
-    <!-- JavaScript Murni (Vanilla JS) -->
+
+    <!-- ================= MODAL: ADMIN LOGIN ================= -->
+    <div id="login-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+        <div class="bg-jawa-card rounded-2xl border border-jawa-gold/30 shadow-2xl max-w-sm w-full p-6 space-y-4">
+            <div class="flex justify-between items-center">
+                <span class="font-serif-jawa font-bold text-lg text-jawa-gold" data-i18n="login-title">Login Administrator</span>
+                <button onclick="closeAdminLogin()" class="text-gray-400 hover:text-gray-600"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+            <form onsubmit="handleAdminLogin(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider mb-1 text-jawa-gold" data-i18n="login-user">Username</label>
+                    <input type="text" id="login-user" required class="w-full px-3 py-2 bg-jawa-cream/40 border border-jawa-gold/30 rounded-xl outline-none focus:ring-1 focus:ring-jawa-gold text-sm text-jawa-gold" placeholder="admin">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider mb-1 text-jawa-gold" data-i18n="login-pass">Password</label>
+                    <input type="password" id="login-pass" required class="w-full px-3 py-2 bg-jawa-cream/40 border border-jawa-gold/30 rounded-xl outline-none focus:ring-1 focus:ring-jawa-gold text-sm text-jawa-gold" placeholder="••••••••">
+                </div>
+                <button type="submit" class="w-full bg-jawa-dark hover:bg-jawa-bronze text-jawa-gold hover:text-white py-2.5 rounded-xl text-xs font-bold tracking-wider transition-all border border-jawa-gold/30">
+                    Masuk Ke Control Panel
+                </button>
+            </form>
+            <p class="text-[10px] text-gray-400 text-center">Info Demo: User: admin, Pass: admin123</p>
+        </div>
+    </div>
+
+
+    <!-- ================= MODAL: ADD / EDIT BOOK ================= -->
+    <div id="book-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 overflow-y-auto">
+        <div class="bg-jawa-card rounded-2xl border border-jawa-gold/30 shadow-2xl max-w-md w-full p-6 space-y-4 my-8">
+            <div class="flex justify-between items-center">
+                <span id="book-modal-title" class="font-serif-jawa font-bold text-lg text-jawa-gold">Tambah Buku Baru</span>
+                <button onclick="closeBookModal()" class="text-gray-400 hover:text-gray-600"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+            <form onsubmit="handleBookSubmit(event)" class="space-y-4">
+                <input type="hidden" id="edit-book-id">
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider mb-1 text-jawa-gold">Judul Buku</label>
+                    <input type="text" id="book-title" required class="w-full px-3 py-2 bg-jawa-cream/40 border border-jawa-gold/30 rounded-xl outline-none focus:ring-1 focus:ring-jawa-gold text-sm" placeholder="Contoh: Kidung Agung Mataram">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider mb-1 text-jawa-gold">Penulis</label>
+                    <input type="text" id="book-author" required class="w-full px-3 py-2 bg-jawa-cream/40 border border-jawa-gold/30 rounded-xl outline-none focus:ring-1 focus:ring-jawa-gold text-sm" placeholder="Contoh: Raden Kartini">
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-wider mb-1 text-jawa-gold">Genre</label>
+                        <select id="book-genre" class="w-full px-3 py-2 bg-jawa-cream/40 border border-jawa-gold/30 rounded-xl outline-none focus:ring-1 focus:ring-jawa-gold text-sm">
+                            <option value="Novel">Novel</option>
+                            <option value="Sastra">Sastra</option>
+                            <option value="Sejarah">Sejarah</option>
+                            <option value="Puisi">Puisi</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-wider mb-1 text-jawa-gold">Harga (Rp)</label>
+                        <input type="number" id="book-price" required class="w-full px-3 py-2 bg-jawa-cream/40 border border-jawa-gold/30 rounded-xl outline-none focus:ring-1 focus:ring-jawa-gold text-sm" placeholder="Contoh: 85000">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider mb-1 text-jawa-gold">Deskripsi Singkat</label>
+                    <textarea id="book-desc" rows="3" required class="w-full px-3 py-2 bg-jawa-cream/40 border border-jawa-gold/30 rounded-xl outline-none focus:ring-1 focus:ring-jawa-gold text-sm" placeholder="Tuliskan ulasan ringkas mengenai buku..."></textarea>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider mb-1 text-jawa-gold">Simulasi Unggah Cover</label>
+                    <div class="border-2 border-dashed border-jawa-gold/40 hover:border-jawa-gold p-4 rounded-xl text-center cursor-pointer" onclick="triggerFileInput('book-cover-file')">
+                        <span id="cover-file-label" class="text-xs text-gray-400 font-medium">Klik untuk pilih gambar cover (.jpg/.png)</span>
+                        <input type="file" id="book-cover-file" class="hidden" onchange="handleFileChange(this, 'cover-file-label')">
+                    </div>
+                </div>
+                <button type="submit" class="w-full bg-jawa-dark hover:bg-jawa-bronze text-jawa-gold hover:text-white py-2.5 rounded-xl text-xs font-bold tracking-wider transition-all border border-jawa-gold/30">
+                    Simpan Buku ke Database
+                </button>
+            </form>
+        </div>
+    </div>
+
+
+    <!-- ================= MODAL: ADD / EDIT BLOG ================= -->
+    <div id="blog-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 overflow-y-auto">
+        <div class="bg-jawa-card rounded-2xl border border-jawa-gold/30 shadow-2xl max-w-lg w-full p-6 space-y-4 my-8">
+            <div class="flex justify-between items-center">
+                <span id="blog-modal-title" class="font-serif-jawa font-bold text-lg text-jawa-gold">Tulis Artikel Baru</span>
+                <button onclick="closeBlogModal()" class="text-gray-400 hover:text-gray-600"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+            <form onsubmit="handleBlogSubmit(event)" class="space-y-4">
+                <input type="hidden" id="edit-blog-id">
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider mb-1 text-jawa-gold">Judul Artikel</label>
+                    <input type="text" id="blog-title-input" required class="w-full px-3 py-2 bg-jawa-cream/40 border border-jawa-gold/30 rounded-xl outline-none focus:ring-1 focus:ring-jawa-gold text-sm" placeholder="Contoh: Cara Menulis Novel dalam 30 Hari">
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-wider mb-1 text-jawa-gold">Kategori</label>
+                        <input type="text" id="blog-category" required class="w-full px-3 py-2 bg-jawa-cream/40 border border-jawa-gold/30 rounded-xl outline-none focus:ring-1 focus:ring-jawa-gold text-sm" placeholder="Tips Menulis / Berita">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-wider mb-1 text-jawa-gold">Tanggal</label>
+                        <input type="date" id="blog-date" required class="w-full px-3 py-2 bg-jawa-cream/40 border border-jawa-gold/30 rounded-xl outline-none focus:ring-1 focus:ring-jawa-gold text-sm">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider mb-1 text-jawa-gold">Konten Artikel</label>
+                    <textarea id="blog-content" rows="6" required class="w-full px-3 py-2 bg-jawa-cream/40 border border-jawa-gold/30 rounded-xl outline-none focus:ring-1 focus:ring-jawa-gold text-sm" placeholder="Tuliskan isi artikel Anda secara lengkap..."></textarea>
+                </div>
+                <button type="submit" class="w-full bg-jawa-dark hover:bg-jawa-bronze text-jawa-gold hover:text-white py-2.5 rounded-xl text-xs font-bold tracking-wider transition-all border border-jawa-gold/30">
+                    Terbitkan Artikel
+                </button>
+            </form>
+        </div>
+    </div>
+
+
+    <!-- ================= SYSTEM LOGIC & DATA (Vanilla JavaScript) ================= -->
     <script>
-        // 1. Inisialisasi Data Dasar
-        let currentLang = 'id';
-        let isDarkMode = false;
-        let isMenuOpen = false;
-
-        document.getElementById('current-year').innerText = new Date().getFullYear();
-
-        // 2. Data Kamus Terjemahan
-        const translations = {
+        // Multilingual Dictionary (ID, JV, EN)
+        const i18n = {
             id: {
-                navHome: "Beranda", navServices: "Layanan", navCatalog: "Katalog", navTesti: "Testimoni", navPub: "Terbitkan Naskah",
-                heroBadge: "Penerbit Independen Terpercaya", heroTitle1: "Wujudkan Mimpimu", heroTitle2: "Menjadi Penulis Buku.", heroDesc: "Dari naskah mentah hingga buku fisik yang indah di genggaman. Kami mendampingi setiap langkah perjalanan menulismu dengan layanan penerbitan profesional, transparan, dan terjangkau.", heroBtn1: "Kirim Naskah", heroBtn2: "Lihat Paket Harga",
-                srvTitle: "Layanan Penerbitan Kami", srvDesc: "Kami menyediakan solusi ujung-ke-ujung (end-to-end) untuk naskah Anda. Pilih layanan yang sesuai dengan kebutuhan Anda.",
-                srv1T: "Editing & Proofreading", srv1D: "Naskah Anda akan disunting oleh editor profesional kami agar enak dibaca dan bebas typo.",
-                srv2T: "Desain Sampul & Layout", srv2D: "Tampilan buku yang menarik dari luar hingga ke dalam halaman.",
-                srv3T: "Pengurusan ISBN", srv3D: "Kami mengurus legalitas buku Anda (ISBN) secara resmi dan cepat.",
-                srv4T: "Cetak Berkualitas", srv4D: "Hasil cetak standar penerbitan mayor dengan pilihan kertas dan jilid terbaik.",
-                catTitle: "Terbitan Terbaru", catDesc: "Jelajahi karya-karya luar biasa dari para penulis yang telah mempercayakan naskahnya pada Cerita Kita Publisher.", catBtn: "Lihat Semua Buku", catBuy: "Beli Buku",
-                ctaTitle: "Punya Naskah yang Siap Diterbitkan?", ctaDesc: "Jangan biarkan karya Anda hanya tersimpan di laptop. Diskusikan dengan tim kami sekarang dan dapatkan penawaran spesial bulan ini.", ctaBtn: "Konsultasi Gratis via WhatsApp",
-                ftDesc: "Penerbit buku indie terpercaya yang berdedikasi untuk membantu penulis lokal menghasilkan karya berkualitas tinggi.", ftNav: "Navigasi", ftTerms: "Ketentuan", ftContact: "Hubungi Kami", ftCopy: "Seluruh Hak Cipta Dilindungi.", ftMade: "Dibuat dengan"
+                "tagline": "Penerbit Buku Nusantara",
+                "nav-home": "Beranda",
+                "nav-katalog": "Katalog Digital",
+                "nav-naskah": "Kirim Naskah",
+                "nav-blog": "Artikel & Berita",
+                "btn-admin": "Admin Panel",
+                "btn-contact": "Hubungi WA",
+                "hero-tag": "Penerbitan Buku Warisan Rasa Modern",
+                "hero-title": "Menghidupkan Karya, <br class='hidden sm:inline'><span class='text-transparent bg-clip-text bg-gradient-to-r from-jawa-gold via-jawa-goldLight to-jawa-gold'>Mengukir Aksara Nusantara</span>",
+                "hero-desc": "Cerita Kita Publisher hadir sebagai wadah terpercaya bagi para penulis tanah air untuk menerbitkan mahakarya dengan sentuhan eksklusif, profesional, dan berkelas.",
+                "hero-btn-primary": "Terbitkan Naskah Anda",
+                "hero-btn-secondary": "Jelajahi Katalog",
+                "stat-1": "Buku Terbit",
+                "stat-2": "Penulis Puas",
+                "stat-3": "Artikel Blog",
+                "decor-badge": "SERI PREMIUM",
+                "decor-title": "Aksara Jiwa",
+                "decor-sub": "Kumpulan Kisah Klasik Modern",
+                "why-tag": "Keunggulan Cerita Kita",
+                "why-title": "Pelayanan Penerbitan Eksklusif & Profesional",
+                "why-desc": "Kami menjamin setiap baris tulisan Anda dikemas dengan estetika tinggi, didistribusikan dengan tepat, serta memberikan royalti yang adil dan transparan.",
+                "feat-1-title": "Editing & Layout Premium",
+                "feat-1-desc": "Editor berpengalaman kami akan menyempurnakan naskah Anda tanpa menghilangkan karakter dan gaya bahasa khas Anda sendiri.",
+                "feat-2-title": "Desain Cover Khas Jawa Klasik",
+                "feat-2-desc": "Setiap buku mendapatkan sentuhan desain cover modern bernuansa lokal klasik yang memikat mata pembaca pada pandangan pertama.",
+                "feat-3-title": "Promosi & SEO Optimal",
+                "feat-3-desc": "Buku Anda akan memiliki landing page ber-SEO tinggi serta dipromosikan melalui media digital secara berkala dan terstruktur.",
+                "spotlight-tag": "Karya Pilihan Redaksi",
+                "spotlight-title": "Sorotan Buku Terpopuler",
+                "spotlight-btn": "Lihat Semua Katalog",
+                "cta-tag": "Wujudkan Mimpi Menjadi Penulis Terkenal",
+                "cta-title": "Apakah Anda Memiliki Naskah Menarik?",
+                "cta-desc": "Jangan biarkan naskah berharga Anda tersimpan di dalam laci. Terbitkan bersama tim ahli Cerita Kita Publisher dan rasakan proses penerbitan yang istimewa.",
+                "cta-btn": "Kirim Naskah Sekarang",
+                "katalog-tag": "Galeri Karya",
+                "katalog-title": "Katalog Digital Buku",
+                "katalog-desc": "Temukan koleksi novel, antologi puisi, buku sejarah, dan karya-karya terbaik dari penulis Nusantara yang kami terbitkan secara eksklusif.",
+                "naskah-tag": "Kesempatan Emas",
+                "naskah-title": "Formulir Pengiriman Naskah",
+                "naskah-desc": "Bergabunglah dengan ekosistem penulis profesional kami. Silakan lengkapi formulir di bawah ini dengan informasi naskah terbaik Anda.",
+                "flow-title": "Alur Penerbitan Kami",
+                "flow-1-title": "Isi Formulir & Unggah",
+                "flow-1-desc": "Lengkapi data diri, sinopsis, bab sampel naskah lengkap melalui form di sebelah.",
+                "flow-2-title": "Review Dewan Redaksi",
+                "flow-2-desc": "Tim kurator kami akan menilai potensi naskah Anda dalam jangka waktu maksimal 14 hari kerja.",
+                "flow-3-title": "Kesepakatan Penerbitan",
+                "flow-3-desc": "Jika naskah Anda disetujui, kami akan mengirimkan MoU kontrak penerbitan yang saling menguntungkan.",
+                "flow-4-title": "Proses Cetak & Promosi",
+                "flow-4-desc": "Naskah diedit, didesain layout & cover, didaftarkan ISBN, lalu siap cetak dan rilis!",
+                "flow-info": "<strong>PENTING:</strong> Pastikan naskah Anda asli (bukan plagiasi), tidak menyinggung SARA ekstrem, dan merupakan karya yang selesai ditulis. Format naskah: PDF atau Word (Docx).",
+                "form-label-name": "Nama Lengkap Penulis",
+                "form-label-email": "Alamat Email Aktif",
+                "form-label-wa": "No. WhatsApp",
+                "form-label-genre": "Kategori Genre Buku",
+                "form-label-title": "Judul Naskah Buku",
+                "form-label-synopsis": "Sinopsis Singkat",
+                "form-label-upload": "Unggah File Naskah (PDF/DOCX)",
+                "form-upload-placeholder": "Pilih file naskah Anda",
+                "form-upload-limit": "Maksimal ukuran file: 10 MB",
+                "form-btn": "Kirim Naskah ke Dewan Redaksi",
+                "blog-tag": "Ruang Literasi",
+                "blog-title": "Kabar Cerita & Tips Kepenulisan",
+                "blog-desc": "Pelajari teknik menulis karya fiksi, rahasia menembus penerbitan major, serta berita terkini seputar dunia literasi lokal maupun nasional.",
+                "footer-desc": "Menerbitkan naskah-naskah berharga di Indonesia dengan pelayanan desain berkelas Jawa Klasik Modern. Kami membantu kesuksesan literasi Anda menuju kancah nasional.",
+                "footer-header-1": "Navigasi Utama",
+                "footer-header-2": "Informasi Kontak",
+                "footer-sub": "Premium Klasik Modern Desain",
+                "admin-title": "Admin Control Hub",
+                "admin-subtitle": "Kelola portofolio, naskah masuk, blog post, dan unduh paket hosting DomaiNesia.",
+                "admin-logout": "Logout Sesi",
+                "admin-tab-1": "Kelola Katalog Buku",
+                "admin-tab-2": "Naskah Masuk",
+                "admin-tab-3": "Kelola Blog/Artikel",
+                "adm-books-header": "Daftar Buku Terbit",
+                "adm-books-btn": "Tambah Buku Baru",
+                "tbl-book": "Buku",
+                "tbl-genre": "Genre",
+                "tbl-price": "Harga",
+                "tbl-action": "Aksi",
+                "adm-submissions-header": "Daftar Naskah yang Dikirim oleh Penulis",
+                "tbl-author": "Penulis / Kontak",
+                "tbl-title": "Judul Naskah",
+                "adm-blogs-header": "Manajemen Berita & Artikel Terbit",
+                "adm-blogs-btn": "Tulis Artikel Baru",
+                "tbl-category": "Kategori",
+                "tbl-date": "Tanggal",
+                "login-title": "Login Administrator",
+                "login-user": "Username",
+                "login-pass": "Password",
+                "genre-all": "Semua Genre",
+                "toast-success-submit": "Naskah sukses dikirim! Tim redaksi kami akan segera memproses naskah Anda.",
+                "toast-admin-welcome": "Selamat datang kembali, Administrator!",
+                "toast-logout": "Anda telah keluar dari sesi Admin.",
+                "btn-buy-wa": "Pesan via WA",
+                "btn-read-more": "Baca Selengkapnya"
+            },
+            jv: {
+                "tagline": "Penerbit Buku Nusantara",
+                "nav-home": "Pendhapa",
+                "nav-katalog": "Katalog Digital",
+                "nav-naskah": "Atur Naskah",
+                "nav-blog": "Layang & Pawarta",
+                "btn-admin": "Admin Panel",
+                "btn-contact": "Hubungi WA",
+                "hero-tag": "Penerbitan Buku Warisan Rasa Modern",
+                "hero-title": "Nguripake Karya, <br class='hidden sm:inline'><span class='text-transparent bg-clip-text bg-gradient-to-r from-jawa-gold via-jawa-goldLight to-jawa-gold'>Ngukir Aksara Nusantara</span>",
+                "hero-desc": "Cerita Kita Publisher rawuh minangka papan kapitunan kagem para panulis tanah air kangge mbabarake mahakarya kanthi sentuhan eksklusif, profesional, lan luhur.",
+                "hero-btn-primary": "Terbitake Naskah Sampeyan",
+                "hero-btn-secondary": "Njlajah Katalog",
+                "stat-1": "Buku Babar",
+                "stat-2": "Panulis Mareman",
+                "stat-3": "Artikel Blog",
+                "decor-badge": "SERI PREMIUM",
+                "decor-title": "Aksara Jiwa",
+                "decor-sub": "Kempalan Cariyos Klasik Modern",
+                "why-tag": "Keunggulan Cerita Kita",
+                "why-title": "Pelayanan Babaran Eksklusif & Profesional",
+                "why-desc": "Kula panjenengan njamin saben gatra tulisan dipun kemas kanthi estetika inggil, dipun edaraken kanthi trep, sarta paring royalti ingkang adil.",
+                "feat-1-title": "Editing & Layout Premium",
+                "feat-1-desc": "Editor ingkang pengalaman badhe nyempurnakaken naskah panjenengan tanpa ngicalaken karakter lan gaya basa khas piyambak.",
+                "feat-2-title": "Desain Sampul Klasik Jawa",
+                "feat-2-desc": "Saben buku pikantuk sentuhan desain sampul modern mawi nuansa lokal klasik ingkang nengsemaken para pamaos.",
+                "feat-3-title": "Promosi & SEO Unggul",
+                "feat-3-desc": "Buku panjenengan badhe kagungan landing page mawi SEO inggil sarta dipun promosekaken kanthi terstruktur.",
+                "spotlight-tag": "Karya Pilihan Redaksi",
+                "spotlight-title": "Buku Terpopuler Pilihan",
+                "spotlight-btn": "Mirsani Sedaya Katalog",
+                "cta-tag": "Wujudaken Impen Dados Panulis Kondhang",
+                "cta-title": "Menapa Panjenengan Kagungan Naskah Sae?",
+                "cta-desc": "Ampun nilaraken naskah agung panjenengan wonten laci. Babaraken sareng tim ahli Cerita Kita Publisher lan raosaken proses ingkang istimewa.",
+                "cta-btn": "Kirim Naskah Sakmenika",
+                "katalog-tag": "Koleksi Karya",
+                "katalog-title": "Katalog Digital Buku",
+                "katalog-desc": "Padosi koleksi novel, antologi geguritan, buku sejarah, lan karya sae saking para panulis Nusantara ingkang dipun terbitaken eksklusif.",
+                "naskah-tag": "Kalodhangan Emas",
+                "naskah-title": "Formulir Pangintunan Naskah",
+                "naskah-desc": "Mangga gabung kaliyan ekosistem panulis profesional. Mangga jangkepi formulir ing ngandhap menika mawi informasi naskah panjenengan.",
+                "flow-title": "Alur Penerbitan Kula",
+                "flow-1-title": "Isi Formulir & Unggah",
+                "flow-1-desc": "Jangkepi data dhiri, sinopsis, lan bab conto naskah lengkap mawi formulir ing sisih.",
+                "flow-2-title": "Review Dewan Redaksi",
+                "flow-2-desc": "Tim kurator badhe mbiji potensi naskah panjenengan salebeting wektu maksimal 14 dinten kerja.",
+                "flow-3-title": "Prajanjian Babaran",
+                "flow-3-desc": "Yen naskah dipun setujui, kula badhe ngintunaken MoU kontrak kerja sama ingkang sami-sami nguntungaken.",
+                "flow-4-title": "Proses Cithak & Promosi",
+                "flow-4-desc": "Naskah dipun edit, dipun desain layout & sampul, dipun padosaken ISBN, banjur siap cithak lan rilis!",
+                "flow-info": "<strong>PENTING:</strong> Pastikaken naskah asli (mboten plagiat), mboten ngandhut SARA, lan karya ingkang sampun rampung. Format naskah: PDF utawi Word (Docx).",
+                "form-label-name": "Asma Jangkep Panulis",
+                "form-label-email": "Alamat Email Aktif",
+                "form-label-wa": "No. WhatsApp",
+                "form-label-genre": "Kategori Genre Buku",
+                "form-label-title": "Irah-Irahan Naskah",
+                "form-label-synopsis": "Sinopsis Ringkes",
+                "form-label-upload": "Unggah Berkas Naskah (PDF/DOCX)",
+                "form-upload-placeholder": "Pilih berkas naskah panjenengan",
+                "form-upload-limit": "Maksimal ukuran berkas: 10 MB",
+                "form-btn": "Kirim Naskah Dhumateng Redaksi",
+                "blog-tag": "Ruang Literasi",
+                "blog-title": "Kabar Cariyos & Tips Nulis",
+                "blog-desc": "Sinau teknik nulis karya fiksi, rahasia nembus penerbitan ageng, sarta pawarta enggal seputar donya literasi lokal lan nasional.",
+                "footer-desc": "Mbabaraken naskah luhur ing Indonesia kanthi pelayanan desain berkelas Jawa Klasik Modern. Kula mbantu kesuksesan literasi panjenengan.",
+                "footer-header-1": "Navigasi Utama",
+                "footer-header-2": "Informasi Kontak",
+                "footer-sub": "Premium Klasik Modern Desain",
+                "admin-title": "Admin Control Hub",
+                "admin-subtitle": "Kelola portofolio, naskah mlebet, blog post, lan unduh paket hosting DomaiNesia.",
+                "admin-logout": "Metu Sesi",
+                "admin-tab-1": "Kelola Katalog Buku",
+                "admin-tab-2": "Naskah Mlebet",
+                "admin-tab-3": "Kelola Blog/Artikel",
+                "adm-books-header": "Daftar Buku Terbit",
+                "adm-books-btn": "Tambah Buku Enggal",
+                "tbl-book": "Buku",
+                "tbl-genre": "Genre",
+                "tbl-price": "Rega",
+                "tbl-action": "Tindakan",
+                "adm-submissions-header": "Daftar Naskah ingkang Dipunkirim Panulis",
+                "tbl-author": "Panulis / Kontak",
+                "tbl-title": "Irah-Irahan Naskah",
+                "adm-blogs-header": "Manajemen Pawarta & Artikel Terbit",
+                "adm-blogs-btn": "Serat Artikel Enggal",
+                "tbl-category": "Kategori",
+                "tbl-date": "Tanggal",
+                "login-title": "Login Administrator",
+                "login-user": "Username",
+                "login-pass": "Sandi",
+                "genre-all": "Sedaya Genre",
+                "toast-success-submit": "Naskah kasil dipunkirim! Tim redaksi badhe sakedhap malih mroses naskah panjenengan.",
+                "toast-admin-welcome": "Sugeng rawuh malih, Administrator!",
+                "toast-logout": "Panjenengan sampun metu saking sesi Admin.",
+                "btn-buy-wa": "Tuku mawi WA",
+                "btn-read-more": "Waos Jangkepipun"
             },
             en: {
-                navHome: "Home", navServices: "Services", navCatalog: "Catalog", navTesti: "Testimonials", navPub: "Publish Now",
-                heroBadge: "Trusted Independent Publisher", heroTitle1: "Turn Your Dream", heroTitle2: "Into a Published Author.", heroDesc: "From raw manuscript to a beautiful physical book in your hands. We accompany every step of your writing journey with professional, transparent, and affordable publishing services.", heroBtn1: "Send Manuscript", heroBtn2: "View Pricing Plans",
-                srvTitle: "Our Publishing Services", srvDesc: "We provide end-to-end solutions for your manuscript. Choose the service that fits your needs.",
-                srv1T: "Editing & Proofreading", srv1D: "Your manuscript will be edited by our professional editors to be readable and typo-free.",
-                srv2T: "Cover Design & Layout", srv2D: "Attractive book appearance from the outside to the inside pages.",
-                srv3T: "ISBN Registration", srv3D: "We handle the legality of your book (ISBN) officially and quickly.",
-                srv4T: "High-Quality Printing", srv4D: "Major publishing standard print results with the best paper and binding options.",
-                catTitle: "Latest Releases", catDesc: "Explore the extraordinary works of authors who have entrusted their manuscripts to Cerita Kita Publisher.", catBtn: "View All Books", catBuy: "Buy Book",
-                ctaTitle: "Have a Manuscript Ready to Publish?", ctaDesc: "Don't let your work just sit on your laptop. Discuss with our team now and get this month's special offer.", ctaBtn: "Free WhatsApp Consultation",
-                ftDesc: "A trusted indie book publisher dedicated to helping local authors produce high-quality works.", ftNav: "Navigation", ftTerms: "Terms", ftContact: "Contact Us", ftCopy: "All Rights Reserved.", ftMade: "Made with"
+                "tagline": "Nusantara Book Publisher",
+                "nav-home": "Home",
+                "nav-katalog": "Digital Catalog",
+                "nav-naskah": "Submit Manuscript",
+                "nav-blog": "Articles & News",
+                "btn-admin": "Admin Panel",
+                "btn-contact": "Contact WA",
+                "hero-tag": "Modern Traditional Premium Book Publishing",
+                "hero-title": "Reviving Masterpieces, <br class='hidden sm:inline'><span class='text-transparent bg-clip-text bg-gradient-to-r from-jawa-gold via-jawa-goldLight to-jawa-gold'>Carving Archipelago Letters</span>",
+                "hero-desc": "Cerita Kita Publisher is here as a trusted platform for Indonesian authors to publish masterpieces with an exclusive, professional, and classy touch.",
+                "hero-btn-primary": "Publish Your Manuscript",
+                "hero-btn-secondary": "Explore Catalog",
+                "stat-1": "Books Published",
+                "stat-2": "Satisfied Authors",
+                "stat-3": "Blog Articles",
+                "decor-badge": "PREMIUM SERIES",
+                "decor-title": "Soul's Carving",
+                "decor-sub": "Collection of Modern Classic Stories",
+                "why-tag": "Our Main Advantages",
+                "why-title": "Exclusive & Professional Publishing Services",
+                "why-desc": "We guarantee every line of your writing is packaged with high aesthetics, distributed appropriately, and provides fair and transparent royalties.",
+                "feat-1-title": "Premium Editing & Layout",
+                "feat-1-desc": "Our experienced editors will perfect your manuscript without losing your own distinctive character and writing style.",
+                "feat-2-title": "Classic Javanese Cover Art",
+                "feat-2-desc": "Every book gets a modern cover design touch with a classic local nuance that captivates readers at first sight.",
+                "feat-3-title": "Optimal Promotion & SEO",
+                "feat-3-desc": "Your book will have an SEO-optimized landing page and be promoted regularly through digital media channels.",
+                "spotlight-tag": "Editor's Choices",
+                "spotlight-title": "Our Featured Masterpieces",
+                "spotlight-btn": "View All Catalog",
+                "cta-tag": "Realize Your Dream of Becoming a Famous Author",
+                "cta-title": "Do You Have an Interesting Manuscript?",
+                "cta-desc": "Don't let your precious manuscript stay hidden in a drawer. Publish with the expert team at Cerita Kita Publisher and experience an extraordinary process.",
+                "cta-btn": "Submit Manuscript Now",
+                "katalog-tag": "Our Gallery",
+                "katalog-title": "Digital Book Catalog",
+                "katalog-desc": "Discover our collection of novels, poetry anthologies, history books, and the best works from Archipelago writers published exclusively.",
+                "naskah-tag": "Golden Opportunity",
+                "naskah-title": "Manuscript Submission Form",
+                "naskah-desc": "Join our ecosystem of professional writers. Please complete the form below with your best manuscript details.",
+                "flow-title": "Our Publishing Workflow",
+                "flow-1-title": "Fill Form & Upload",
+                "flow-1-desc": "Complete your bio, synopsis, and book sample chapters through the submission form on the right.",
+                "flow-2-title": "Editorial Review",
+                "flow-2-desc": "Our curation team will evaluate the potential of your manuscript within a maximum of 14 working days.",
+                "flow-3-title": "Publishing Agreement",
+                "flow-3-desc": "If your manuscript is approved, we will send a mutually beneficial contract agreement (MoU).",
+                "flow-4-title": "Printing & Marketing",
+                "flow-4-desc": "The manuscript is edited, formatted, cover-designed, registered for ISBN, and ready for launch!",
+                "flow-info": "<strong>IMPORTANT:</strong> Ensure your manuscript is original (not plagiarized), does not contain extreme hate speech, and is fully completed. Formats: PDF or Word (Docx).",
+                "form-label-name": "Author's Full Name",
+                "form-label-email": "Active Email Address",
+                "form-label-wa": "WhatsApp Number",
+                "form-label-genre": "Book Genre Category",
+                "form-label-title": "Manuscript Title",
+                "form-label-synopsis": "Brief Synopsis",
+                "form-label-upload": "Upload Manuscript File (PDF/DOCX)",
+                "form-upload-placeholder": "Choose your manuscript file",
+                "form-upload-limit": "Maximum file size: 10 MB",
+                "form-btn": "Submit Manuscript to Editors",
+                "blog-tag": "Literacy Lounge",
+                "blog-title": "Writing Guide & Publishing News",
+                "blog-desc": "Learn fiction writing techniques, secrets to penetrating major publishers, and the latest news from local and national literacy scenes.",
+                "footer-desc": "Publishing valuable manuscripts in Indonesia with premium Javanese Modern design services. We assist your literacy journey to the national scale.",
+                "footer-header-1": "Main Navigation",
+                "footer-header-2": "Contact Information",
+                "footer-sub": "Premium Modern Classic Design",
+                "admin-title": "Admin Control Hub",
+                "admin-subtitle": "Manage portfolio, incoming manuscripts, blog posts, and download DomaiNesia hosting packages.",
+                "admin-logout": "Logout Session",
+                "admin-tab-1": "Manage Book Catalog",
+                "admin-tab-2": "Manuscripts Received",
+                "admin-tab-3": "Manage Blog/Articles",
+                "adm-books-header": "Published Book List",
+                "adm-books-btn": "Add New Book",
+                "tbl-book": "Book",
+                "tbl-genre": "Genre",
+                "tbl-price": "Price",
+                "tbl-action": "Action",
+                "adm-submissions-header": "Manuscripts Sent by Authors",
+                "tbl-author": "Author / Contact",
+                "tbl-title": "Manuscript Title",
+                "adm-blogs-header": "News & Published Articles Management",
+                "adm-blogs-btn": "Write New Article",
+                "tbl-category": "Category",
+                "tbl-date": "Date",
+                "login-title": "Administrator Login",
+                "login-user": "Username",
+                "login-pass": "Password",
+                "genre-all": "All Genres",
+                "toast-success-submit": "Manuscript successfully submitted! Our editorial team will review it shortly.",
+                "toast-admin-welcome": "Welcome back, Administrator!",
+                "toast-logout": "You have logged out from the Admin session.",
+                "btn-buy-wa": "Order via WA",
+                "btn-read-more": "Read Full Article"
             }
         };
 
-        // 3. Data Katalog Buku
-        const booksData = [
-            { title: 'Masa Lalu Masa Depan', author: 'Latif Safruddin', cover: 'ChatGPT Image 11 Mei 2026, 10.03.21.png', category: 'Biografi' },
-            { title: '50 Tahun SMK Muh. 1 Keling', author: 'Murgiyanto', cover: 'ChatGPT Image 11 Mei 2026, 10.18.23.png', category: 'Pendidikan' },
-            { title: 'Memimpin Desa Kelet', author: 'Abdul Aziz', cover: 'ChatGPT Image 11 Mei 2026, 10.51.40.png', category: 'Kepemimpinan' },
-            { title: 'Pengajar, Penyiar & Relawan', author: 'Rachmawati S.', cover: 'WhatsApp Image 2026-05-11 at 05.58.42.jpeg', category: 'Inspirasi' },
-            { title: 'Kekerasan Perempuan & Anak', author: 'Rini Dwi Lestari', cover: 'WhatsApp Image 2026-05-11 at 05.58.43 (1).jpeg', category: 'Sosial' },
-            { title: 'Pundungan Spektakuler', author: 'Danang Setiawan', cover: 'WhatsApp Image 2026-05-11 at 05.58.43 (2).jpeg', category: 'Inspirasi' },
-            { title: 'Usaha Dencraft', author: 'Erna April', cover: 'WhatsApp Image 2026-05-11 at 07.26.46.jpeg', category: 'Bisnis' },
-            { title: '15 Tahun Mengabdi', author: 'Latif Safruddin', cover: 'WhatsApp Image 2026-05-07 at 06.36.09.jpeg', category: 'Biografi' },
-            { title: 'Dapur Barokah Sleman', author: 'Latif Safruddin', cover: 'ChatGPT Image 7 Mei 2026, 08.04.12.png', category: 'Bisnis' },
-            { title: 'Noto Ati Resiki Ati', author: 'Latif Safruddin', cover: 'WhatsApp Image 2026-05-07 at 06.01.06.jpeg', category: 'Religi' }
+        // Simulated Databases
+        let books = [
+            {
+                id: 1,
+                title: "Ronggeng Dukuh Paruk Modern",
+                author: "Ahmad Tohari",
+                genre: "Sastra",
+                price: 95000,
+                desc: "Kisah epik adaptasi modern berlatar budaya lokal yang kental dengan sentuhan bahasa puitis dan mengesankan.",
+                cover: "https://images.unsplash.com/photo-1544947950-fa07a98d237f?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80"
+            },
+            {
+                id: 2,
+                title: "Aksara Jiwa Nusantara",
+                author: "Mila Kartika",
+                genre: "Novel",
+                price: 88000,
+                desc: "Sebuah perjalanan spiritual seorang putri keraton yang mencoba bertahan hidup di rimba ibu kota modern.",
+                cover: "https://images.unsplash.com/photo-1543002588-bfa74002ed7e?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80"
+            },
+            {
+                id: 3,
+                title: "Hikayat Mataram Kuno",
+                author: "Bambang Wijaya",
+                genre: "Sejarah",
+                price: 115000,
+                desc: "Buku non-fiksi sejarah yang mengupas tuntas kehidupan raja-raja tanah Jawa dari aspek budaya dan politik.",
+                cover: "https://images.unsplash.com/photo-1512820790803-83ca734da794?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80"
+            },
+            {
+                id: 4,
+                title: "Derai Gerimis Solo",
+                author: "Siti Rahayu",
+                genre: "Puisi",
+                price: 65000,
+                desc: "Kumpulan puisi indah sarat emosi bernuansa sunyi dan romantis di sepanjang sudut kota Solo.",
+                cover: "https://images.unsplash.com/photo-1495640388908-05fa85288e61?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80"
+            }
         ];
 
-        // 4. Fungsi Render Buku (Membuat HTML buku)
-        function renderBooks() {
-            const grid = document.getElementById('book-grid');
-            let html = '';
+        let articles = [
+            {
+                id: 1,
+                title: "Rahasia Menggugah Emosi Pembaca pada Bab Pertama Novel",
+                category: "Tips Menulis",
+                date: "2026-06-15",
+                content: "Bab pertama adalah penentu apakah pembaca akan terus membaca novel Anda atau menutupnya. Gunakan teknik 'in media res' untuk memulainya langsung dari bagian aksi dramatis..."
+            },
+            {
+                id: 2,
+                title: "Perjalanan Buku dari Naskah Hingga Siap Kirim di Toko Buku",
+                category: "Info Penerbitan",
+                date: "2026-07-02",
+                content: "Proses penerbitan membutuhkan tahapan panjang mulai dari editing naskah oleh editor profesional, perancangan layout, desain cover eksklusif hingga pengurusan ISBN..."
+            },
+            {
+                id: 3,
+                title: "Pentingnya Unsur Budaya dalam Menghidupkan Latar Cerita Fiksi",
+                category: "Tips Menulis",
+                date: "2026-07-10",
+                content: "Memasukkan nilai tradisi lokal memberikan nyawa tersendiri bagi sebuah novel. Pembaca akan merasakan sensasi petualangan nyata ke lokasi cerita yang penuh pesona tradisi..."
+            }
+        ];
+
+        let submissions = [
+            {
+                id: 1,
+                nama: "Rahmat Santoso",
+                email: "rahmat@mail.com",
+                telp: "085878976277",
+                genre: "Novel",
+                judul: "Langit Biru Prambanan",
+                sinopsis: "Kisah cinta terhalang garis keturunan di masa pembangunan candi Prambanan.",
+                tanggal: "2026-07-11 14:30",
+                status: "Direview"
+            }
+        ];
+
+        let currentLang = 'id';
+        let currentTheme = 'light';
+
+        // System Initialization
+        window.onload = function() {
+            lucide.createIcons();
+            // Default setup from local storage or defaults
+            if (localStorage.getItem('cerita-lang')) {
+                currentLang = localStorage.getItem('cerita-lang');
+                document.getElementById('lang-selector').value = currentLang;
+            }
+            if (localStorage.getItem('cerita-theme')) {
+                currentTheme = localStorage.getItem('cerita-theme');
+            }
             
-            booksData.forEach(book => {
-                const encodedCover = encodeURI(book.cover);
-                const btnText = translations[currentLang].catBuy;
+            applyTheme();
+            applyLanguage();
+            loadBooks();
+            loadArticles();
+            loadStats();
+        }
+
+        // Apply Theme State
+        function applyTheme() {
+            const body = document.body;
+            const themeIconInd = document.getElementById('theme-icon-indicator');
+            const themeIconIndMobile = document.getElementById('theme-icon-indicator-mobile');
+
+            if (currentTheme === 'dark') {
+                body.classList.add('theme-dark-blue');
+                themeIconInd.setAttribute('data-lucide', 'moon');
+                themeIconIndMobile.setAttribute('data-lucide', 'moon');
+            } else {
+                body.classList.remove('theme-dark-blue');
+                themeIconInd.setAttribute('data-lucide', 'sun');
+                themeIconIndMobile.setAttribute('data-lucide', 'sun');
+            }
+            lucide.createIcons();
+        }
+
+        // Toggle Theme Selector
+        function toggleTheme() {
+            currentTheme = (currentTheme === 'light') ? 'dark' : 'light';
+            localStorage.setItem('cerita-theme', currentTheme);
+            applyTheme();
+            showToast(currentTheme === 'dark' ? "Tema Gelap Biru Royal Aktif" : "Tema Terang Kuning Klasik Aktif", "palette");
+        }
+
+        // Apply Language Translation Strings
+        function applyLanguage() {
+            const dictionary = i18n[currentLang];
+            
+            // Loop through all data-i18n elements
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (dictionary[key]) {
+                    el.innerHTML = dictionary[key];
+                }
+            });
+
+            // Re-render specific dynamic blocks
+            renderGenreFilters();
+        }
+
+        // Change Language Event Selector
+        function changeLanguage(lang) {
+            currentLang = lang;
+            localStorage.setItem('cerita-lang', currentLang);
+            applyLanguage();
+            loadBooks(); // reload catalog buttons and descriptions translations
+            showToast(currentLang === 'id' ? "Bahasa diubah ke Indonesia" : (currentLang === 'jv' ? "Basa dipun-gantos dhumateng Jawi" : "Language changed to English"), "globe");
+        }
+
+        // Render Dynamic Genre Filter Buttons with Translation Support
+        function renderGenreFilters() {
+            const container = document.getElementById('genre-filter-container');
+            const list = ['Semua', 'Novel', 'Sastra', 'Sejarah', 'Puisi'];
+            container.innerHTML = '';
+            
+            list.forEach((genre, idx) => {
+                const isAll = genre === 'Semua';
+                const label = isAll ? i18n[currentLang]['genre-all'] : genre;
+                const activeClass = idx === 0 ? "genre-btn active bg-jawa-dark text-jawa-gold" : "genre-btn border border-jawa-gold/30 hover:border-jawa-gold text-jawa-gold";
                 
-                html += `
-                <div class="group cursor-pointer">
-                    <div class="relative overflow-hidden rounded-xl aspect-[2/3] mb-4">
-                        <img 
-                            src="${encodedCover}" 
-                            alt="${book.title}" 
-                            class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110 bg-slate-200 dark:bg-slate-800" 
-                            onerror="this.onerror=null; this.src='https://placehold.co/400x600/e2e8f0/4f46e5?text=${encodeURIComponent(book.title)}';"
-                        />
-                        <div class="absolute inset-0 bg-gradient-to-t from-slate-900/90 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-6">
-                            <button class="w-full bg-indigo-600 text-white py-2 rounded-lg font-medium hover:bg-indigo-500 transition-colors cat-buy-btn">${btnText}</button>
-                        </div>
-                        <div class="absolute top-4 left-4">
-                            <span class="bg-white/90 dark:bg-slate-900/90 backdrop-blur-sm text-slate-900 dark:text-white text-xs font-bold px-3 py-1 rounded-full shadow-sm">${book.category}</span>
-                        </div>
-                    </div>
-                    <h3 class="text-lg font-bold truncate">${book.title}</h3>
-                    <p class="text-slate-400 text-sm">${book.author}</p>
-                </div>
+                container.innerHTML += `
+                    <button onclick="filterGenre('${genre}')" class="${activeClass} px-4 py-2.5 rounded-lg text-xs font-semibold transition-all duration-200">
+                        ${label}
+                    </button>
                 `;
             });
-            grid.innerHTML = html;
         }
 
-        // 5. Fungsi Update Teks (Ganti Bahasa)
-        function updateTexts() {
-            const elements = document.querySelectorAll('[data-i18n]');
-            elements.forEach(el => {
-                const key = el.getAttribute('data-i18n');
-                if (translations[currentLang][key]) {
-                    el.innerText = translations[currentLang][key];
-                }
-            });
+        // Navigation Controller (Single Page Architecture)
+        function navigateTo(sectionId) {
+            // Hide all main sections
+            document.getElementById('section-home').classList.add('hidden');
+            document.getElementById('section-katalog').classList.add('hidden');
+            document.getElementById('section-naskah').classList.add('hidden');
+            document.getElementById('section-blog').classList.add('hidden');
+            document.getElementById('section-admin').classList.add('hidden');
 
-            // Update label bahasa di tombol
-            document.getElementById('lang-text').innerText = currentLang.toUpperCase();
-            document.getElementById('mobile-lang-text').innerText = currentLang.toUpperCase();
-
-            // Update teks tombol beli di dalam galeri (karena dirender dinamis)
-            const buyBtns = document.querySelectorAll('.cat-buy-btn');
-            buyBtns.forEach(btn => {
-                btn.innerText = translations[currentLang].catBuy;
-            });
-        }
-
-        // 6. Fungsi Toggle Bahasa
-        window.toggleLang = function() {
-            currentLang = currentLang === 'id' ? 'en' : 'id';
-            updateTexts();
-        };
-
-        // 7. Fungsi Toggle Tema Gelap/Terang
-        window.toggleTheme = function() {
-            isDarkMode = !isDarkMode;
-            
-            // Toggle class 'dark' di elemen html
-            if (isDarkMode) {
-                document.documentElement.classList.add('dark');
-            } else {
-                document.documentElement.classList.remove('dark');
+            // Show selected section
+            const targetSection = document.getElementById(`section-${sectionId}`);
+            if (targetSection) {
+                targetSection.classList.remove('hidden');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
             }
 
-            // Update Ikon Matahari/Bulan
-            const moonIcon = document.getElementById('icon-moon');
-            const sunIcon = document.getElementById('icon-sun');
-            const mobileMoonIcon = document.getElementById('mobile-icon-moon');
-            const mobileSunIcon = document.getElementById('mobile-icon-sun');
-            
-            if (isDarkMode) {
-                moonIcon.classList.add('opacity-0');
-                sunIcon.classList.remove('opacity-0');
-                mobileMoonIcon.classList.add('opacity-0');
-                mobileSunIcon.classList.remove('opacity-0');
-            } else {
-                moonIcon.classList.remove('opacity-0');
-                sunIcon.classList.add('opacity-0');
-                mobileMoonIcon.classList.remove('opacity-0');
-                mobileSunIcon.classList.add('opacity-0');
-            }
-
-            // Atur gaya gambar logo (cerahkan di mode gelap agar emasnya terlihat)
-            const logos = [document.getElementById('logo-img'), document.getElementById('footer-logo-img')];
-            logos.forEach(logo => {
-                if (logo) {
-                    if (isDarkMode) {
-                        logo.classList.add('brightness-150', 'drop-shadow-[0_0_10px_rgba(255,255,255,0.2)]');
-                    } else {
-                        logo.classList.remove('brightness-150', 'drop-shadow-[0_0_10px_rgba(255,255,255,0.2)]');
-                    }
-                }
-            });
-        };
-
-        // 8. Fungsi Menu Mobile
-        window.toggleMenu = function() {
-            isMenuOpen = !isMenuOpen;
-            const mobileMenu = document.getElementById('mobile-menu');
-            const iconMenu = document.getElementById('icon-menu');
-            const iconX = document.getElementById('icon-x');
-
-            if (isMenuOpen) {
-                mobileMenu.classList.remove('hidden');
-                iconMenu.classList.add('opacity-0');
-                iconX.classList.remove('opacity-0');
-            } else {
-                mobileMenu.classList.add('hidden');
-                iconMenu.classList.remove('opacity-0');
-                iconX.classList.add('opacity-0');
-            }
-        };
-
-        window.closeMenu = function() {
-            if (isMenuOpen) toggleMenu();
-        };
-
-        // 9. Jalankan Saat Halaman Dimuat
-        document.addEventListener('DOMContentLoaded', () => {
-            renderBooks();
-            updateTexts();
+            // Close mobile menu drawer if open
+            document.getElementById('mobile-menu').classList.add('hidden');
+            document.getElementById('menu-icon').setAttribute('data-lucide', 'menu');
             lucide.createIcons();
-        });
+        }
 
-    </script>
-</body>
-</html>
+        // Toggle Mobile Navigation Drawer
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobile-menu');
+            const icon = document.getElementById('menu-icon');
+            if (menu.classList.contains('hidden')) {
+                menu.classList.remove('hidden');
+                icon.setAttribute('data-lucide', 'x');
+            } else {
+                menu.classList.add('hidden');
+                icon.setAttribute('data-lucide', 'menu');
+            }
+            lucide.createIcons();
+        }
+
+        // Custom Toast System
+        function showToast(message, iconName = 'info') {
+            const toast = document.getElementById('toast');
+            const toastMsg = document.getElementById('toast-message');
+            const toastIcon = document.getElementById('toast-icon');
+
+            toastMsg.textContent = message;
+            toastIcon.innerHTML = `<i data-lucide="${iconName}" class="w-5 h-5"></i>`;
+            lucide.createIcons();
+
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            toast.classList.add('translate-y-0', 'opacity-100');
+
+            setTimeout(() => {
+                toast.classList.add('translate-y-20', 'opacity-0');
+                toast.classList.remove('translate-y-0', 'opacity-100');
+            }, 4000);
+        }
+
+        // Load & Render Books data
+        function loadBooks() {
+            const btnBuyLabel = i18n[currentLang]['btn-buy-wa'];
+            
+            // Spotlight Books on Home (Limit to 3)
+            const featuredContainer = document.getElementById('featured-books-list');
+            featuredContainer.innerHTML = '';
+            
+            books.slice(0, 3).forEach(book => {
+                featuredContainer.innerHTML += `
+                    <div class="bg-jawa-bronze/30 rounded-2xl border border-jawa-gold/20 overflow-hidden hover:border-jawa-gold/60 transition-all duration-300 flex flex-col justify-between">
+                        <div class="p-6">
+                            <div class="relative w-full h-72 mb-6 overflow-hidden rounded-xl bg-gray-800">
+                                <img src="${book.cover}" alt="Cover ${book.title}" class="w-full h-full object-cover transform hover:scale-105 transition duration-500">
+                                <span class="absolute top-3 left-3 bg-jawa-gold text-jawa-dark text-[10px] font-extrabold px-3 py-1 rounded-full uppercase tracking-wider">${book.genre}</span>
+                            </div>
+                            <h3 class="font-serif-jawa text-xl font-bold text-white mb-2">${book.title}</h3>
+                            <p class="text-xs text-gray-400 mb-4">${currentLang === 'en' ? 'Written by' : 'Ditulis dening'} <span class="text-jawa-gold">${book.author}</span></p>
+                            <p class="text-xs text-gray-300 leading-relaxed">${book.desc}</p>
+                        </div>
+                        <div class="p-6 pt-0 border-t border-jawa-gold/10 mt-auto flex items-center justify-between">
+                            <span class="text-sm font-bold text-jawa-gold font-serif-jawa">Rp ${book.price.toLocaleString('id-ID')}</span>
+                            <a href="https://wa.me/6285878976277?text=Halo%20Cerita%20Kita%20Publisher,%20saya%20ingin%20membeli%20buku%20*${encodeURIComponent(book.title)}*" target="_blank" class="bg-jawa-gold hover:bg-white text-jawa-dark px-4 py-2 rounded-lg text-xs font-bold transition flex items-center space-x-1">
+                                <i data-lucide="shopping-cart" class="w-3.5 h-3.5"></i>
+                                <span>${btnBuyLabel}</span>
+                            </a>
+                        </div>
+                    </div>
+                `;
+            });
+
+            // Katalog Page Books Grid
+            const gridContainer = document.getElementById('katalog-grid');
+            gridContainer.innerHTML = '';
+            books.forEach(book => {
+                gridContainer.innerHTML += `
+                    <div class="bg-jawa-card rounded-2xl border border-jawa-gold/15 overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between card-shadow">
+                        <div class="p-5">
+                            <div class="relative w-full h-64 mb-5 overflow-hidden rounded-xl bg-jawa-dark/10">
+                                <img src="${book.cover}" alt="Cover ${book.title}" class="w-full h-full object-cover">
+                                <span class="absolute top-3 left-3 bg-jawa-dark text-jawa-gold text-[10px] font-extrabold px-3 py-1 rounded-full uppercase tracking-wider">${book.genre}</span>
+                            </div>
+                            <h3 class="font-serif-jawa text-lg font-bold mb-1 leading-tight text-jawa-gold">${book.title}</h3>
+                            <p class="text-xs text-gray-400 mb-3">${currentLang === 'en' ? 'By' : 'Dening'}: ${book.author}</p>
+                            <p class="text-xs text-gray-400 line-clamp-3">${book.desc}</p>
+                        </div>
+                        <div class="p-5 pt-0 border-t border-jawa-gold/10 mt-auto flex items-center justify-between">
+                            <span class="text-sm font-bold text-jawa-accent">Rp ${book.price.toLocaleString('id-ID')}</span>
+                            <a href="https://wa.me/6285878976277?text=Halo%20Cerita%20Kita%20Publisher,%20saya%20tertarik%20membeli%20buku%20*${encodeURIComponent(book.title)}*" target="_blank" class="bg-jawa-dark hover:bg-jawa-bronze text-jawa-gold px-4 py-2 rounded-lg text-xs font-semibold border border-jawa-gold/30 transition flex items-center space-x-1">
+                                <i data-lucide="shopping-cart" class="w-3.5 h-3.5"></i>
+                                <span>${btnBuyLabel}</span>
+                            </a>
+                        </div>
+                    </div>
+                `;
+            });
+
+            // Load to Admin Table
+            const adminTable = document.getElementById('admin-books-table');
+            adminTable.innerHTML = '';
+            books.forEach(book => {
+                adminTable.innerHTML += `
+                    <tr class="hover:bg-jawa-dark/20">
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="flex items-center">
+                                <div class="flex-shrink-0 h-12 w-9 rounded overflow-hidden bg-gray-100 border">
+                                    <img src="${book.cover}" alt="Book cover" class="h-full w-full object-cover">
+                                </div>
+                                <div class="ml-4">
+                                    <div class="text-sm font-bold">${book.title}</div>
+                                    <div class="text-xs text-gray-400">Oleh: ${book.author}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-400">${book.genre}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-jawa-gold">Rp ${book.price.toLocaleString('id-ID')}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="text-xs text-jawa-gold bg-jawa-dark px-2.5 py-1 rounded-full font-medium inline-block">WhatsApp Ready</span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-right text-xs font-medium space-x-2">
+                            <button onclick="editBook(${book.id})" class="text-blue-400 hover:text-blue-300 font-bold">Edit</button>
+                            <button onclick="deleteBook(${book.id})" class="text-red-400 hover:text-red-300 font-bold">Hapus</button>
+                        </td>
+                    </tr>
+                `;
+            });
+            lucide.createIcons();
+        }
+
+        // Filter Katalog by Search Input
+        function filterKatalog() {
+            const query = document.getElementById('katalog-search').value.toLowerCase();
+            const gridContainer = document.getElementById('katalog-grid');
+            const btnBuyLabel = i18n[currentLang]['btn-buy-wa'];
+            gridContainer.innerHTML = '';
+
+            const filtered = books.filter(book => 
+                book.title.toLowerCase().includes(query) || 
+                book.author.toLowerCase().includes(query) ||
+                book.genre.toLowerCase().includes(query)
+            );
+
+            if (filtered.length === 0) {
+                gridContainer.innerHTML = `<div class="col-span-full py-12 text-center text-gray-400 font-medium">Buku tidak ditemukan. Coba pencarian lainnya.</div>`;
+                return;
+            }
+
+            filtered.forEach(book => {
+                gridContainer.innerHTML += `
+                    <div class="bg-jawa-card rounded-2xl border border-jawa-gold/10 overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between card-shadow">
+                        <div class="p-5">
+                            <div class="relative w-full h-64 mb-5 overflow-hidden rounded-xl bg-gray-100">
+                                <img src="${book.cover}" alt="Cover ${book.title}" class="w-full h-full object-cover">
+                                <span class="absolute top-3 left-3 bg-jawa-dark text-jawa-gold text-[10px] font-extrabold px-3 py-1 rounded-full uppercase tracking-wider">${book.genre}</span>
+                            </div>
+                            <h3 class="font-serif-jawa text-lg font-bold text-jawa-gold mb-1 leading-tight">${book.title}</h3>
+                            <p class="text-xs text-gray-400 mb-3">Oleh: ${book.author}</p>
+                            <p class="text-xs text-gray-400 line-clamp-3">${book.desc}</p>
+                        </div>
+                        <div class="p-5 pt-0 border-t border-jawa-gold/10 mt-auto flex items-center justify-between">
+                            <span class="text-sm font-bold text-jawa-accent">Rp ${book.price.toLocaleString('id-ID')}</span>
+                            <a href="https://wa.me/6285878976277?text=Halo%20Cerita%20Kita%20Publisher,%20saya%20tertarik%20membeli%20buku%20*${encodeURIComponent(book.title)}*" target="_blank" class="bg-jawa-dark hover:bg-jawa-bronze text-jawa-gold px-4 py-2 rounded-lg text-xs font-semibold transition flex items-center space-x-1">
+                                <i data-lucide="shopping-cart" class="w-3.5 h-3.5"></i>
+                                <span>${btnBuyLabel}</span>
+                            </a>
+                        </div>
+                    </div>
+                `;
+            });
+            lucide.createIcons();
+        }
+
+        // Filter Katalog by Category Buttons
+        function filterGenre(genre) {
+            // Update active states on buttons
+            document.querySelectorAll('.genre-btn').forEach(btn => {
+                btn.className = "genre-btn border border-jawa-gold/30 hover:border-jawa-gold text-jawa-gold px-4 py-2.5 rounded-lg text-xs font-semibold transition-all duration-200";
+            });
+
+            // Set clicked button to active
+            const clickedBtn = event.target;
+            clickedBtn.className = "genre-btn active bg-jawa-dark text-jawa-gold px-4 py-2.5 rounded-lg text-xs font-semibold transition-all duration-200";
+
+            const gridContainer = document.getElementById('katalog-grid');
+            const btnBuyLabel = i18n[currentLang]['btn-buy-wa'];
+            gridContainer.innerHTML = '';
+
+            const filtered = (genre === 'Semua') ? books : books.filter(book => book.genre === genre);
+
+            if (filtered.length === 0) {
+                gridContainer.innerHTML = `<div class="col-span-full py-12 text-center text-gray-400 font-medium">Buku dengan genre ${genre} belum tersedia.</div>`;
+                return;
+            }
+
+            filtered.forEach(book => {
+                gridContainer.innerHTML += `
+                    <div class="bg-jawa-card rounded-2xl border border-jawa-gold/10 overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between card-shadow">
+                        <div class="p-5">
+                            <div class="relative w-full h-64 mb-5 overflow-hidden rounded-xl bg-gray-100">
+                                <img src="${book.cover}" alt="Cover ${book.title}" class="w-full h-full object-cover">
+                                <span class="absolute top-3 left-3 bg-jawa-dark text-jawa-gold text-[10px] font-extrabold px-3 py-1 rounded-full uppercase tracking-wider">${book.genre}</span>
+                            </div>
+                            <h3 class="font-serif-jawa text-lg font-bold text-jawa-gold mb-1 leading-tight">${book.title}</h3>
+                            <p class="text-xs text-gray-400 mb-3">Oleh: ${book.author}</p>
+                            <p class="text-xs text-gray-400 line-clamp-3">${book.desc}</p>
+                        </div>
+                        <div class="p-5 pt-0 border-t border-jawa-gold/10 mt-auto flex items-center justify-between">
+                            <span class="text-sm font-bold text-jawa-accent">Rp ${book.price.toLocaleString('id-ID')}</span>
+                            <a href="https://wa.me/6285878976277?text=Halo%20Cerita%20Kita%20Publisher,%20saya%20tertarik%20membeli%20buku%20*${encodeURIComponent(book.title)}*" target="_blank" class="bg-jawa-dark hover:bg-jawa-bronze text-jawa-gold px-4 py-2 rounded-lg text-xs font-semibold transition flex items-center space-x-1">
+                                <i data-lucide="shopping-cart" class="w-3.5 h-3.5"></i>
+                                <span>${btnBuyLabel}</span>
+                            </a>
+                        </div>
+                    </div>
+                `;
+            });
+            lucide.createIcons();
+        }
+
+        // Load & Render Blog Articles
+        function loadArticles() {
+            const blogGrid = document.getElementById('blog-grid');
+            const btnLabel = i18n[currentLang]['btn-read-more'];
+            blogGrid.innerHTML = '';
+
+            articles.forEach(article => {
+                const formattedDate = new Date(article.date).toLocaleDateString(currentLang === 'en' ? 'en-US' : 'id-ID', {
+                    day: 'numeric',
+                    month: 'long',
+                    year: 'numeric'
+                });
+
+                blogGrid.innerHTML += `
+                    <div class="bg-jawa-card p-6 rounded-2xl border border-jawa-gold/10 card-shadow hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-center justify-between mb-4">
+                                <span class="bg-jawa-accent/10 text-jawa-accent px-3 py-1 rounded-full text-[10px] font-bold tracking-wider uppercase">${article.category}</span>
+                                <span class="text-[11px] text-gray-400 font-medium">${formattedDate}</span>
+                            </div>
+                            <h3 class="font-serif-jawa text-lg font-bold mb-3 hover:text-jawa-gold transition cursor-pointer text-jawa-gold leading-snug">${article.title}</h3>
+                            <p class="text-xs text-gray-400 leading-relaxed line-clamp-4 mb-4">${article.content}</p>
+                        </div>
+                        <button onclick="readArticleDetail(${article.id})" class="text-jawa-gold hover:text-jawa-accent text-xs font-bold flex items-center space-x-1 pt-4 border-t border-jawa-gold/10">
+                            <span>${btnLabel}</span>
+                            <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+                        </button>
+                    </div>
+                `;
+            });
+
+            // Render to Admin Blog Table
+            const adminBlogTable = document.getElementById('admin-blogs-table');
+            adminBlogTable.innerHTML = '';
+            articles.forEach(art => {
+                adminBlogTable.innerHTML += `
+                    <tr class="hover:bg-jawa-dark/20">
+                        <td class="px-6 py-4">
+                            <div class="text-sm font-bold text-gray-200">${art.title}</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-xs">
+                            <span class="bg-jawa-dark/50 text-jawa-gold px-2.5 py-1 rounded-full font-medium">${art.category}</span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-400">${art.date}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-right text-xs font-medium space-x-2">
+                            <button onclick="editBlog(${art.id})" class="text-blue-400 hover:text-blue-300 font-bold">Edit</button>
+                            <button onclick="deleteBlog(${art.id})" class="text-red-400 hover:text-red-300 font-bold">Hapus</button>
+                        </td>
+                    </tr>
+                `;
+            });
+            lucide.createIcons();
+        }
+
+        // Load stats to DOM
+        function loadStats() {
+            document.getElementById('stat-books').innerText = `${books.length}+`;
+            document.getElementById('stat-blogs').innerText = `${articles.length}+`;
+        }
+
+        // Trigger Hidden File Inputs
+        function triggerFileInput(id) {
+            document.getElementById(id).click();
+        }
+
+        // Handle File input display
+        function handleFileChange(input, labelId) {
+            const file = input.files[0];
+            if (file) {
+                document.getElementById(labelId).innerText = `Berkas terpilih: ${file.name}`;
+            }
+        }
+
+        // HANDLE NASKAH SUBMISSION FORM
+        function handleNaskahSubmit(event) {
+            event.preventDefault();
+            const form = event.target;
+            const data = new FormData(form);
+
+            const naskahBaru = {
+                id: submissions.length + 1,
+                nama: data.get('nama_penulis'),
+                email: data.get('email_penulis'),
+                telp: data.get('telp_penulis'),
+                genre: data.get('genre_buku'),
+                judul: data.get('judul_naskah'),
+                sinopsis: data.get('sinopsis'),
+                tanggal: new Date().toLocaleString(currentLang === 'en' ? 'en-US' : 'id-ID'),
+                status: "Direview"
+            };
+
+            submissions.push(naskahBaru);
+            form.reset();
+            document.getElementById('file-label').innerText = i18n[currentLang]['form-upload-placeholder'];
+
+            showToast(i18n[currentLang]['toast-success-submit'], "check-circle");
+            
+            renderSubmissions();
+            
+            setTimeout(() => {
+                navigateTo('home');
+            }, 3000);
+        }
+
+        // Render Submissions in Admin Panel
+        function renderSubmissions() {
+            const container = document.getElementById('admin-submissions-table');
+            container.innerHTML = '';
+
+            if (submissions.length === 0) {
+                container.innerHTML = `<tr><td colspan
